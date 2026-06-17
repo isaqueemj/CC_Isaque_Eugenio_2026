@@ -1,0 +1,197 @@
+CREATE DATABASE IF NOT EXISTS Sistema
+
+USE Sistema;
+
+CREATE TABLE IF NOT EXISTS paises (
+    id_pais INT AUTO_INCREMENT PRIMARY KEY,
+    pais VARCHAR(54) NOT NULL,
+    sigla CHAR(3) UNIQUE NOT NULL,
+    ddi CHAR(5) NOT NULL,
+    moeda CHAR(3),
+    nacionalidade CHAR(30),
+    codigo_ibge INT NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS estados (
+    id_estado INT AUTO_INCREMENT PRIMARY KEY,
+    id_pais INT NOT NULL,
+    estado VARCHAR(50) NOT NULL,
+    uf CHAR(2) NOT NULL,
+    codigo_ibge INT NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    UNIQUE KEY uk_estado_uf_pais (uf, id_pais),
+    CONSTRAINT fk_estado_pais FOREIGN KEY (id_pais) REFERENCES paises(id_pais)
+);
+
+CREATE TABLE IF NOT EXISTS cidades (
+    id_cidade INT AUTO_INCREMENT PRIMARY KEY,
+    id_estado INT NOT NULL,
+    cidade VARCHAR(60) NOT NULL,
+    ddd VARCHAR(3) NULL,
+    codigo_ibge INT NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_cidade_estado FOREIGN KEY (id_estado) REFERENCES estados(id_estado)
+);
+
+CREATE TABLE IF NOT EXISTS enderecos (
+    id_endereco INT AUTO_INCREMENT PRIMARY KEY,
+    bairro VARCHAR(60) NULL,
+    endereco VARCHAR(100) NULL,
+    numero VARCHAR(10) NULL,
+    logradouro VARCHAR(30) NULL,
+    cep CHAR(8) NULL,
+    complemento VARCHAR(100) NULL,
+    id_cidade INT NOT NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_endereco_cidade FOREIGN KEY (id_cidade) REFERENCES cidades(id_cidade)
+);
+
+CREATE TABLE IF NOT EXISTS informacoes (
+    id_informacao INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(80) NULL,
+    cpf_cnpj CHAR(14) NOT NULL,
+    telefone VARCHAR(20) NULL,
+    celular VARCHAR(20) NULL,
+    ie VARCHAR(14) NULL,
+    tipo_pessoa CHAR(1) NULL,
+    rg CHAR(11) NULL,
+    nome_fantasia VARCHAR(60) NULL,
+    observacao TEXT NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS fornecedores (
+    id_fornecedor INT AUTO_INCREMENT PRIMARY KEY,
+    fornecedor VARCHAR(50) NOT NULL,
+    categoria VARCHAR(50) NULL,
+    fk_endereco INT NOT NULL,
+    id_informacao INT NOT NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_fornecedor_endereco FOREIGN KEY (fk_endereco) REFERENCES enderecos(id_endereco),
+    CONSTRAINT fk_fornecedor_informacao FOREIGN KEY (id_informacao) REFERENCES informacoes(id_informacao)
+);
+
+CREATE TABLE IF NOT EXISTS clientes (
+    id_cliente INT AUTO_INCREMENT PRIMARY KEY,
+    cliente VARCHAR(50) NOT NULL,
+    apelido VARCHAR(50) NULL,
+    tipo VARCHAR(20) NULL,
+    fk_endereco INT NOT NULL,
+    id_informacao INT NOT NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_cliente_endereco FOREIGN KEY (fk_endereco) REFERENCES enderecos(id_endereco),
+    CONSTRAINT fk_cliente_informacao FOREIGN KEY (id_informacao) REFERENCES informacoes(id_informacao)
+);
+
+CREATE TABLE IF NOT EXISTS modelos (
+    id_modelo INT AUTO_INCREMENT PRIMARY KEY,
+    modelo VARCHAR(100) NOT NULL,
+    descricao TEXT NULL,
+    marca VARCHAR(100) NULL,
+    ano_fabricacao YEAR NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS veiculos (
+    id_veiculo INT AUTO_INCREMENT PRIMARY KEY,
+    veiculo VARCHAR(100) NULL,
+    placa VARCHAR(10) NOT NULL UNIQUE,
+    renavam VARCHAR(20) UNIQUE,
+    chassi VARCHAR(30) UNIQUE,
+    cor VARCHAR(30) NULL,
+    ano_fabricacao YEAR NULL,
+    ano_modelo YEAR NULL,
+    combustivel VARCHAR(20) NULL,
+    quilometragem INT DEFAULT 0,
+    fk_modelo INT NOT NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_veiculo_modelo FOREIGN KEY (fk_modelo) REFERENCES modelos(id_modelo)
+);
+
+CREATE TABLE IF NOT EXISTS produtos (
+    id_produto INT AUTO_INCREMENT PRIMARY KEY,
+    produto VARCHAR(50) NOT NULL,
+    sku VARCHAR(30) NULL,
+    categoria VARCHAR(50) NULL,
+    unidade VARCHAR(3) DEFAULT 'UN',
+    preco_custo DECIMAL(10,2) DEFAULT 0.00,
+    preco_venda DECIMAL(10,2) DEFAULT 0.00,
+    saldo DECIMAL(10,2) DEFAULT 0.00,
+    valor_ultima_compra DECIMAL(10,2) DEFAULT 0.00,
+    data_ultima_compra DATE NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS transportadores (
+    id_transportador INT AUTO_INCREMENT PRIMARY KEY,
+    transportador VARCHAR(50) NOT NULL,
+    tipo_frete VARCHAR(20) NULL,
+    fk_endereco INT NOT NULL,
+    id_informacao INT NOT NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_transportador_endereco FOREIGN KEY (fk_endereco) REFERENCES enderecos(id_endereco),
+    CONSTRAINT fk_transportador_informacao FOREIGN KEY (id_informacao) REFERENCES informacoes(id_informacao)
+);
+
+CREATE TABLE IF NOT EXISTS condicoes_pagamento (
+    id_condicao_pagamento INT AUTO_INCREMENT PRIMARY KEY,
+    condicao_pagamento VARCHAR(60) NOT NULL,
+    quantidade_parcelas INT DEFAULT 1,
+    intervalo_dias INT DEFAULT 30,
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS formas_pagamento (
+    id_forma_pagamento INT AUTO_INCREMENT PRIMARY KEY,
+    forma_pagamento VARCHAR(60) NOT NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS funcionarios (
+    id_funcionario INT AUTO_INCREMENT PRIMARY KEY,
+    funcionario VARCHAR(80) NOT NULL,
+    cargo VARCHAR(60) NULL,
+    salario DECIMAL(10,2) NULL,
+    id_informacao INT NULL,
+    fk_endereco INT NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_funcionario_informacao FOREIGN KEY (id_informacao) REFERENCES informacoes(id_informacao),
+    CONSTRAINT fk_funcionario_endereco FOREIGN KEY (fk_endereco) REFERENCES enderecos(id_endereco)
+);
