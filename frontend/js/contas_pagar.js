@@ -1,0 +1,1 @@
+document.addEventListener('DOMContentLoaded', () => ERP.initCrud('contas_pagar'));

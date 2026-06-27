@@ -1081,13 +1081,19 @@ def excluir_entidade(entidade, id_registro):
 
     except Exception as erro:
         conexao.rollback()
-
         print(f"ERRO AO EXCLUIR {entidade.upper()}:", erro)
+
+        # Captura o erro de chave estrangeira do MySQL (Código 1451)
+        if "1451" in str(erro):
+            mensagem_usuario = "Não é possível excluir este registro porque existem outros dados vinculados a ele."
+        else:
+            mensagem_usuario = "Ocorreu um erro interno ao processar a exclusão."
 
         return jsonify({
             "status": "erro",
-            "mensagem": str(erro)
-        }), 500
+            "mensagem": mensagem_usuario,
+            "detalhe": str(erro) # Opcional: mantém o erro técnico guardado
+        }), 400
 
     finally:
         if cursor:

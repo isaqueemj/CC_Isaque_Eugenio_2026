@@ -126,11 +126,25 @@
                       type="button"
                       class="btn-close"
                       data-bs-dismiss="modal"
+                      aria-label="Close"
                     ></button>
                   </div>
                   <div class="modal-body">
                     <input type="hidden" id="recordId" />
-                    <div id="formFields" class="row g-3"></div>
+                    
+                    <div id="formFields" class="row g-3">
+                      <div class="col-md-6">
+                        <label for="moedaPais" class="form-label">Moeda</label>
+                        <input 
+                          type="text" 
+                          id="moedaPais" 
+                          name="moeda" 
+                          class="form-control" 
+                          placeholder="Ex: Euro, Real, USD..."
+                        />
+                      </div>
+                    </div>
+
                   </div>
                   <div class="modal-footer">
                     <button

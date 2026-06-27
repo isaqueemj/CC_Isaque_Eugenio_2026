@@ -1,5 +1,30 @@
 const ERP = (() => {
     const schema = {
+        condicoes_pagamento: {
+            title: "Condições de Pagamento",
+            sing: "Condição de Pagamento",
+            icon: "fa-solid fa-credit-card",
+            fields: [
+                ["nome", "Descrição", "text"],
+                ["parcelas", "Qtd. de Parcelas", "number"],
+                ["dias_intervalo", "Intervalo (Dias)", "number"],
+                ["status", "Status", "select:Ativo|Inativo"]
+            ]
+        },
+
+        contas_pagar: {
+            title: "Contas a Pagar",
+            sing: "Conta a Pagar",
+            icon: "fa-solid fa-file-invoice-dollar",
+            fields: [
+                ["descricao", "Descrição do Documento", "text"],
+                ["valor_total", "Valor Total", "number"],
+                ["data_vencimento", "Data de Vencimento", "date"],
+                ["id_condicao", "Condição de Pagamento", "text"], // Pode evoluir para um "select" dinâmico se seu backend der suporte
+                ["status", "Situação", "select:Pendente|Pago|Cancelado"]
+            ]
+        },
+
         paises: {
             title: "Países",
             sing: "País",
@@ -8,6 +33,7 @@ const ERP = (() => {
                 ["nome", "Nome", "text"],
                 ["sigla", "Sigla", "text"],
                 ["ddi", "DDI", "text"],
+                ["moeda", "Moeda", "text"],
                 ["status", "Status", "select:Ativo|Inativo"]
             ]
         },
