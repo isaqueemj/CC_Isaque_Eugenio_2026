@@ -18,86 +18,50 @@
 
     <div class="app-shell">
 
-        <aside id="sidebar" class="sidebar">
-
+        <aside class="sidebar">
             <div class="brand">
-                <i class="fa-solid fa-layer-group"></i>
-                <span>ERP Front</span>
+                <i class="fa-solid fa-layer-group"></i><span>Cidade-Estado-Pais</span>
             </div>
-
             <nav>
-                <a class="nav-link active" href="dashboard.html">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Início</span>
-                </a>
+                <!-- Dashboard e Cadastros Base -->
+                <a class="nav-link active" href="index.html"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></a>
 
-                <a class="nav-link" href="pages/paises.html">
-                    <i class="fa-solid fa-globe"></i>
-                    <span>Países</span>
-                </a>
+                <hr class="text-white opacity-50 my-2">
 
-                <a class="nav-link" href="pages/estados.html">
-                    <i class="fa-solid fa-map"></i>
-                    <span>Estados</span>
-                </a>
+                <!-- Geografia -->
+                <small class="text-uppercase text-white-50 px-3 small fw-bold">Geografia</small>
+                <a class="nav-link" href="pages/paises.html"><i class="fa-solid fa-globe"></i><span>Países</span></a>
+                <a class="nav-link" href="pages/estados.html"><i class="fa-solid fa-map"></i><span>Estados</span></a>
+                <a class="nav-link" href="pages/cidades.html"><i class="fa-solid fa-city"></i><span>Cidades</span></a>
 
-                <a class="nav-link" href="pages/cidades.html">
-                    <i class="fa-solid fa-city"></i>
-                    <span>Cidades</span>
-                </a>
+                <hr class="text-white opacity-50 my-2">
 
-                <a class="nav-link" href="pages/enderecos.html">
-                    <i class="fa-solid fa-location-dot"></i>
-                    <span>Endereços</span>
-                </a>
+                <!-- Operacional -->
+                <small class="text-uppercase text-white-50 px-3 small fw-bold">Operacional</small>
+                <a class="nav-link" href="pages/clientes.html"><i class="fa-solid fa-users"></i><span>Clientes</span></a>
+                <a class="nav-link" href="pages/fornecedores.html"><i class="fa-solid fa-truck-field"></i><span>Fornecedores</span></a>
+                <a class="nav-link" href="pages/transportadores.html"><i class="fa-solid fa-truck-fast"></i><span>Transportadores</span></a>
+                <a class="nav-link" href="pages/produtos.html"><i class="fa-solid fa-box"></i><span>Produtos</span></a>
 
-                <a class="nav-link" href="pages/informacoes.html">
-                    <i class="fa-solid fa-circle-info"></i>
-                    <span>Informações</span>
-                </a>
+                <hr class="text-white opacity-50 my-2">
 
-                <a class="nav-link" href="pages/clientes.html">
-                    <i class="fa-solid fa-users"></i>
-                    <span>Clientes</span>
-                </a>
+                <!-- Veículos -->
+                <small class="text-uppercase text-white-50 px-3 small fw-bold">Veículos</small>
+                <a class="nav-link" href="pages/marcas.html"><i class="fa-solid fa-tag"></i><span>Marcas</span></a>
+                <a class="nav-link" href="pages/modelos.html"><i class="fa-solid fa-tags"></i><span>Modelos</span></a>
+                <a class="nav-link" href="pages/veiculos.html"><i class="fa-solid fa-car"></i><span>Veículos</span></a>
 
-                <a class="nav-link" href="pages/fornecedores.html">
-                    <i class="fa-solid fa-truck-field"></i>
-                    <span>Fornecedores</span>
-                </a>
+                <hr class="text-white opacity-50 my-2">
 
-                <a class="nav-link" href="pages/produtos.html">
-                    <i class="fa-solid fa-box"></i>
-                    <span>Produtos</span>
-                </a>
-
-                <a class="nav-link" href="pages/modelos.html">
-                    <i class="fa-solid fa-tags"></i>
-                    <span>Modelos</span>
-                </a>
-
-                <a class="nav-link" href="pages/veiculos.html">
-                    <i class="fa-solid fa-car"></i>
-                    <span>Veículos</span>
-                </a>
-
-                <a class="nav-link" href="pages/transportadores.html">
-                    <i class="fa-solid fa-truck-fast"></i>
-                    <span>Transportadores</span>
-
-                <a class="nav-link" href="pages/condicoes_pagamento.html">
-                    <i class="fa-solid fa-truck-fast"></i>
-                    <span>Condições de Pagamento</span>
-                </a>
-
-            </nav>
-
+                <!-- Administrativo -->
+                <small class="text-uppercase text-white-50 px-3 small fw-bold">Administrativo</small>
+                <a class="nav-link" href="pages/condicoes_pagamento.html"><i class="fa-solid fa-credit-card"></i><span>Condições Pgto.</span></a>
+                <a class="nav-link" href="pages/funcionarios.html"><i class="fa-solid fa-id-badge"></i><span>Funcionários</span></a>            </nav>
         </aside>
 
         <div class="main-wrapper">
 
             <header class="topbar">
-
                 <button id="toggleSidebar" class="btn btn-light btn-sm" data-bs-toggle="tooltip" title="Recolher menu">
                     <i class="fa-solid fa-bars"></i>
                 </button>
@@ -108,21 +72,15 @@
                 </div>
 
                 <div class="topbar-actions">
-                    <span class="badge text-bg-primary">
-                        Sistema ERP
-                    </span>
+                    <span class="badge text-bg-primary">Sistema ERP</span>
                 </div>
-
             </header>
 
             <main class="content dashboard-home">
-
                 <section class="welcome-section">
-
                     <div class="welcome-content">
                         <span class="welcome-tag">
-                            <i class="fa-solid fa-building"></i>
-                            Gestão empresarial
+                            <i class="fa-solid fa-building"></i> Gestão empresarial
                         </span>
 
                         <h2>Bem-vindo ao sistema ERP</h2>
@@ -135,38 +93,37 @@
 
                         <div class="welcome-actions">
                             <a href="pages/paises.html" class="btn btn-light">
-                                <i class="fa-solid fa-users me-1"></i>
-                                Cadastrar paises
+                                <i class="fa-solid fa-users me-1"></i> Cadastrar países
                             </a>
-
                             <a href="pages/produtos.html" class="btn btn-outline-light">
-                                <i class="fa-solid fa-box me-1"></i>
-                                Ver produtos
+                                <i class="fa-solid fa-box me-1"></i> Ver produtos
                             </a>
                         </div>
                     </div>
 
                     <div class="welcome-illustration">
                         <div class="floating-card card-one">
-                            <i class="fa-solid fa-users"></i>
-                            <span>Clientes</span>
+                            <i class="fa-solid fa-users"></i> <span>Clientes</span>
                         </div>
-
                         <div class="floating-card card-two">
-                            <i class="fa-solid fa-box"></i>
-                            <span>Produtos</span>
+                            <i class="fa-solid fa-box"></i> <span>Produtos</span>
                         </div>
-
                         <div class="floating-card card-three">
-                            <i class="fa-solid fa-truck-fast"></i>
-                            <span>Transportes</span>
+                            <i class="fa-solid fa-truck-fast"></i> <span>Transportes</span>
                         </div>
                     </div>
-
                 </section>
 
                 <section class="quick-access-section">
-
                     <div class="section-title">
                         <h3>Acesso rápido</h3>
                         <p>Escolha um módulo para começar o gerenciamento.</p>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

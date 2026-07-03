@@ -20,14 +20,14 @@ class Main:
 
         print("\n🚀 INICIANDO SERVIDOR WEB...")
         print("🔗 Acesse o sistema pelo navegador:")
-        print("http://127.0.0.1:5000")
+        print("http://127.0.0.1:5000/dashboard")
         print("\nPressione CTRL + C para parar o servidor.\n")
 
         try:
             processo = subprocess.Popen([sys.executable, caminho_flask])
 
             time.sleep(2)
-            webbrowser.open("http://127.0.0.1:5000")
+            webbrowser.open("http://127.0.0.1:5000/dashboard")
 
             processo.wait()
 

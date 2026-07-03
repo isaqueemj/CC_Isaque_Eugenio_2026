@@ -250,3 +250,25 @@
     align-items: flex-start;
 }
 
+/* Adicione ou atualize a classe .sidebar no seu CSS */
+.sidebar {
+    height: 100vh; /* Faz a barra lateral ocupar 100% da altura da tela */
+    overflow-y: auto; /* Adiciona a rolagem vertical quando o conteúdo vazar */
+    overflow-x: hidden; /* Evita que crie rolagem horizontal */
+}
+
+/* Opcional: Deixar a barra de rolagem mais bonita e fina */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+body { text-transform: uppercase; }

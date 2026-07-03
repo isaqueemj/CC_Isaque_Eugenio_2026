@@ -5,699 +5,271 @@ from decimal import Decimal
 import os
 from db import conectar_banco
 
-
 diretorio_atual = os.path.dirname(os.path.abspath(__file__))
 frontend_path = os.path.join(diretorio_atual, "frontend")
 
-app = Flask(
-    __name__,
-    static_folder=frontend_path,
-    static_url_path=""
-)
-
+app = Flask(__name__, static_folder=frontend_path, static_url_path="")
 CORS(app)
 
-
-# ============================================================
-# CONFIGURAÇÃO DAS ENTIDADES
-# ============================================================
-
 ENTIDADES = {
-    "paises": {
-        "table": "paises",
-        "pk": "id_pais"
-    },
-    "estados": {
-        "table": "estados",
-        "pk": "id_estado"
-    },
-    "cidades": {
-        "table": "cidades",
-        "pk": "id_cidade"
-    },
-    "enderecos": {
-        "table": "enderecos",
-        "pk": "id_endereco"
-    },
-    "informacoes": {
-        "table": "informacoes",
-        "pk": "id_informacao"
-    },
-    "clientes": {
-        "table": "clientes",
-        "pk": "id_cliente"
-    },
-    "fornecedores": {
-        "table": "fornecedores",
-        "pk": "id_fornecedor"
-    },
-    "produtos": {
-        "table": "produtos",
-        "pk": "id_produto"
-    },
-    "modelos": {
-        "table": "modelos",
-        "pk": "id_modelo"
-    },
-    "veiculos": {
-        "table": "veiculos",
-        "pk": "id_veiculo"
-    },
-    "transportadores": {
-        "table": "transportadores",
-        "pk": "id_transportador"
-    },
-    "condicoes_pagamento": {
-        "table": "condicoes_pagamento",
-        "pk": "id_condicao_pagamento"
-    },
-    "formas_pagamento": {
-        "table": "formas_pagamento",
-        "pk": "id_forma_pagamento"
-    },
-    "funcionarios": {
-        "table": "funcionarios",
-        "pk": "id_funcionario"
-    }
+    "paises": {"table": "paises", "pk": "id_pais"},
+    "estados": {"table": "estados", "pk": "id_estado"},
+    "cidades": {"table": "cidades", "pk": "id_cidade"},
+    "clientes": {"table": "clientes", "pk": "id_cliente"},
+    "fornecedores": {"table": "fornecedores", "pk": "id_fornecedor"},
+    "produtos": {"table": "produtos", "pk": "id_produto"},
+    "marcas": {"table": "marcas", "pk": "id_marca"},
+    "modelos": {"table": "modelos", "pk": "id_modelo"},
+    "veiculos": {"table": "veiculos", "pk": "id_veiculo"},
+    "transportadores": {"table": "transportadores", "pk": "id_transportador"},
+    "condicoes_pagamento": {"table": "condicoes_pagamento", "pk": "id_condicao_pagamento"},
+    "formas_pagamento": {"table": "formas_pagamento", "pk": "id_forma_pagamento"},
+    "funcionarios": {"table": "funcionarios", "pk": "id_funcionario"}
 }
 
-
-# ============================================================
-# FUNÇÕES AUXILIARES
-# ============================================================
-
 def valor_para_json(valor):
-    if isinstance(valor, Decimal):
-        return float(valor)
-
-    if isinstance(valor, (date, datetime)):
-        return valor.isoformat()
-
+    if isinstance(valor, Decimal): return float(valor)
+    if isinstance(valor, (date, datetime)): return valor.isoformat()
     return valor
 
-
 def normalizar_registros(registros):
-    lista = []
-
-    for registro in registros:
-        item = {}
-
-        for chave, valor in registro.items():
-            item[chave] = valor_para_json(valor)
-
-        lista.append(item)
-
-    return lista
-
+    return [{chave: valor_para_json(valor) for chave, valor in registro.items()} for registro in registros]
 
 def obter_colunas(conexao, tabela):
     cursor = conexao.cursor(dictionary=True)
-
     try:
         cursor.execute(f"SHOW COLUMNS FROM {tabela}")
-        resultado = cursor.fetchall()
-        return [coluna["Field"] for coluna in resultado]
-
+        return [coluna["Field"] for coluna in cursor.fetchall()]
     finally:
         cursor.close()
 
-
-def coluna_existe(colunas, coluna):
-    return coluna in colunas
-
+def coluna_existe(colunas, coluna): return coluna in colunas
 
 def selecionar_coluna(colunas, coluna, alias=None, padrao="NULL"):
-    if coluna in colunas:
-        if alias:
-            return f"{coluna} AS {alias}"
-
-        return coluna
-
-    if alias:
-        return f"{padrao} AS {alias}"
-
-    return f"{padrao} AS {coluna}"
-
+    if coluna in colunas: return f"{coluna} AS {alias}" if alias else coluna
+    return f"{padrao} AS {alias}" if alias else f"{padrao} AS {coluna}"
 
 def converter_status_para_ativo(valor):
-    if valor is None:
-        return 1
-
+    if valor is None: return 1
     texto = str(valor).strip().lower()
-
-    if texto in ["ativo", "1", "true", "sim", "s"]:
-        return 1
-
-    if texto in ["inativo", "0", "false", "nao", "não", "n"]:
-        return 0
-
+    if texto in ["inativo", "0", "false", "nao", "não", "n"]: return 0
     return 1
 
-
 def valor_inteiro_ou_zero(valor):
-    try:
-        if valor is None or valor == "":
-            return 0
-
-        return int(valor)
-
-    except Exception:
-        return 0
-
+    try: return int(valor) if valor else 0
+    except Exception: return 0
 
 def limpar_payload(payload, colunas):
-    novo_payload = {}
-
-    for chave, valor in payload.items():
-        if chave in colunas:
-            novo_payload[chave] = valor
-
-    return novo_payload
-
+    return {k: v for k, v in payload.items() if k in colunas}
 
 def obter_valor(dados, *chaves):
     for chave in chaves:
         valor = dados.get(chave)
-
-        if valor is not None and valor != "":
-            return valor
-
+        if valor is not None and valor != "": return valor
     return None
-
 
 def validar_obrigatorio_flexivel(dados, campos):
     campos_faltando = []
-
     for grupo in campos:
-        if isinstance(grupo, str):
-            grupo = [grupo]
-
-        encontrado = False
-
-        for campo in grupo:
-            valor = dados.get(campo)
-
-            if valor is not None and valor != "":
-                encontrado = True
-                break
-
-        if not encontrado:
-            campos_faltando.append(grupo[0])
-
+        grupo = [grupo] if isinstance(grupo, str) else grupo
+        if not any(dados.get(c) for c in grupo): campos_faltando.append(grupo[0])
     return campos_faltando
-
-
-# ============================================================
-# PAYLOADS PARA INSERT E UPDATE
-# ============================================================
 
 def montar_payload(entidade, dados, colunas):
     payload = {}
-
     if entidade == "paises":
-        payload["pais"] = dados.get("nome")
+        payload["pais"] = dados.get("pais")
         payload["sigla"] = dados.get("sigla")
         payload["ddi"] = dados.get("ddi")
         payload["moeda"] = dados.get("moeda")
         payload["nacionalidade"] = dados.get("nacionalidade")
-        payload["codigo_ibge"] = dados.get("codigo_ibge") or dados.get("codigoIbge")
+        payload["codigo_ibge"] = dados.get("codigo_ibge")
 
     elif entidade == "estados":
-        payload["id_pais"] = obter_valor(dados, "pais_id", "paisId")
-        payload["estado"] = dados.get("nome")
+        payload["id_pais"] = obter_valor(dados, "id_pais")
+        payload["estado"] = dados.get("estado")
         payload["uf"] = dados.get("uf")
-        payload["codigo_ibge"] = dados.get("codigo_ibge") or dados.get("codigoIbge")
 
     elif entidade == "cidades":
-        payload["id_estado"] = obter_valor(dados, "estado_id", "estadoId")
-        payload["cidade"] = dados.get("nome")
+        payload["id_estado"] = obter_valor(dados, "id_estado")
+        payload["cidade"] = dados.get("cidade")
         payload["ddd"] = dados.get("ddd") or "000"
-        payload["codigo_ibge"] = dados.get("codigo_ibge") or dados.get("codigoIbge")
 
-    elif entidade == "enderecos":
-        payload["id_cidade"] = obter_valor(dados, "cidade_id", "cidadeId")
-        payload["bairro"] = dados.get("bairro")
-        payload["endereco"] = dados.get("logradouro") or dados.get("endereco")
-        payload["numero"] = dados.get("numero")
+    elif entidade == "clientes":
+        nome_campo = "cliente" if entidade == "clientes" else "fornecedor"
+        payload[nome_campo] = dados.get(nome_campo)
+        if entidade == "clientes": payload["apelido"], payload["tipo"] = dados.get("apelido"), dados.get("tipo")
+        else: payload["categoria"], payload["nome_fantasia"] = dados.get("categoria"), dados.get("nome_fantasia")
+        payload["id_cidade"] = obter_valor(dados, "id_cidade")
+        payload["logradouro"], payload["numero"], payload["bairro"] = dados.get("logradouro"), dados.get("numero"), dados.get("bairro")
+        payload["cep"], payload["complemento"] = dados.get("cep"), dados.get("complemento")
+        payload["email"], payload["cpf_cnpj"] = dados.get("email"), dados.get("cpf_cnpj")
+        payload["telefone"], payload["celular"] = dados.get("telefone"), dados.get("celular")
+        payload["ie"], payload["tipo_pessoa"], payload["rg"] = dados.get("ie"), dados.get("tipo_pessoa"), dados.get("rg")
+        payload["observacao"] = dados.get("observacao")
+    
+    elif entidade == "fornecedores":
+        payload["fornecedor"] = dados.get("fornecedor")
+        payload["categoria"] = dados.get("categoria")
+        payload["nome_fantasia"] = dados.get("nome_fantasia")
+        # Garante que pegamos o id_cidade do formulário
+        payload["id_cidade"] = obter_valor(dados, "id_cidade", "cidade_id")
         payload["logradouro"] = dados.get("logradouro")
+        payload["numero"] = dados.get("numero")
+        payload["bairro"] = dados.get("bairro")
         payload["cep"] = dados.get("cep")
         payload["complemento"] = dados.get("complemento")
-
-    elif entidade == "informacoes":
         payload["email"] = dados.get("email")
-        payload["cpf_cnpj"] = dados.get("documento") or dados.get("cpf_cnpj") or "00000000000000"
+        payload["cpf_cnpj"] = dados.get("cpf_cnpj")
         payload["telefone"] = dados.get("telefone")
         payload["celular"] = dados.get("celular")
         payload["ie"] = dados.get("ie")
-        payload["tipo_pessoa"] = dados.get("tipo_pessoa") or "F"
+        payload["tipo_pessoa"] = dados.get("tipo_pessoa") or "J"
         payload["rg"] = dados.get("rg")
-        payload["nome_fantasia"] = dados.get("nome_fantasia")
         payload["observacao"] = dados.get("observacao")
 
-    elif entidade == "clientes":
-        payload["cliente"] = dados.get("nome")
-        payload["apelido"] = dados.get("apelido") or dados.get("nome")
-        payload["tipo"] = dados.get("tipo")
-        payload["fk_endereco"] = obter_valor(dados, "endereco_id", "enderecoId")
-        payload["id_informacao"] = obter_valor(dados, "informacao_id", "informacaoId")
-
-    elif entidade == "fornecedores":
-        payload["fornecedor"] = dados.get("nome")
-        payload["categoria"] = dados.get("categoria")
-        payload["fk_endereco"] = obter_valor(dados, "endereco_id", "enderecoId")
-        payload["id_informacao"] = obter_valor(dados, "informacao_id", "informacaoId")
-
     elif entidade == "produtos":
-        payload["produto"] = dados.get("nome")
-        payload["sku"] = dados.get("sku")
-        payload["categoria"] = dados.get("categoria")
+        payload["produto"], payload["sku"], payload["categoria"] = dados.get("produto"), dados.get("sku"), dados.get("categoria")
         payload["unidade"] = dados.get("unidade") or "UN"
-        payload["preco_custo"] = dados.get("preco_custo") or 0
-        payload["preco_venda"] = dados.get("preco") or dados.get("preco_venda") or 0
-        payload["saldo"] = dados.get("estoque") or dados.get("saldo") or 0
-        payload["valor_ultima_compra"] = dados.get("valor_ultima_compra") or 0
-        payload["data_ultima_compra"] = dados.get("data_ultima_compra") or date.today().isoformat()
-
+        payload["preco_custo"], payload["preco_venda"] = dados.get("preco_custo") or 0, dados.get("preco_venda") or 0
+        payload["saldo"] = dados.get("saldo") or 0
+   
+    elif entidade == "marcas":
+        payload["nome"], payload["slug"] = dados.get("nome"), dados.get("slug")
+  
     elif entidade == "modelos":
-        payload["modelo"] = dados.get("nome")
-        payload["descricao"] = dados.get("descricao")
-        payload["marca"] = dados.get("marca")
-        payload["ano_fabricacao"] = dados.get("ano")
-        payload["ativo"] = converter_status_para_ativo(dados.get("status"))
+        payload["id_marca"] = obter_valor(dados, "id_marca")
+        payload["modelo"], payload["descricao"] = dados.get("modelo"), dados.get("descricao")
+        payload["ano_fabricacao"] = dados.get("ano_fabricacao")
+ 
+    elif entidade == "marcas":
+        payload["nome"] = dados.get("nome")
 
     elif entidade == "veiculos":
-        # Se a coluna "veiculo" existir como INT no banco, envia 0 para evitar erro de texto em inteiro.
-        if coluna_existe(colunas, "veiculo"):
-            payload["veiculo"] = valor_inteiro_ou_zero(dados.get("veiculo"))
-
-        payload["fk_modelo"] = obter_valor(dados, "modelo_id", "modeloId")
+        # Ajuste para garantir que o ID do modelo venha correto
+        payload["fk_modelo"] = obter_valor(dados, "modelo_id", "id_modelo")
         payload["placa"] = dados.get("placa")
         payload["renavam"] = dados.get("renavam")
         payload["chassi"] = dados.get("chassi")
-        payload["cor"] = dados.get("cor") or "Não informado"
-        payload["ano_fabricacao"] = (
-            dados.get("ano_fabricacao")
-            or dados.get("ano")
-            or date.today().year
-        )
-        payload["ano_modelo"] = (
-            dados.get("ano_modelo")
-            or dados.get("ano")
-            or date.today().year
-        )
+        payload["cor"] = dados.get("cor")
+        payload["ano_fabricacao"] = dados.get("ano_fabricacao")
+        payload["ano_modelo"] = dados.get("ano_modelo")
         payload["combustivel"] = dados.get("combustivel")
         payload["quilometragem"] = dados.get("quilometragem") or 0
-
+  
     elif entidade == "transportadores":
-        payload["transportador"] = dados.get("nome") or dados.get("transportador")
-        payload["fk_endereco"] = obter_valor(dados, "endereco_id", "enderecoId")
-        payload["fk_informacao"] = obter_valor(dados, "informacao_id", "informacaoId")
-
+        payload["transportador"], payload["tipo_frete"] = dados.get("transportador"), dados.get("tipo_frete")
+        payload["cpf_cnpj"], payload["rg"], payload["ie"] = dados.get("cpf_cnpj"), dados.get("rg"), dados.get("ie")
+        payload["telefone"], payload["celular"], payload["email"] = dados.get("telefone"), dados.get("celular"), dados.get("email")
+        payload["id_cidade"] = obter_valor(dados, "id_cidade")
+        payload["logradouro"], payload["numero"], payload["bairro"] = dados.get("logradouro"), dados.get("numero"), dados.get("bairro")
+        payload["cep"], payload["complemento"] = dados.get("cep"), dados.get("complemento")
+   
     elif entidade == "condicoes_pagamento":
-        payload["condicao_pagamento"] = dados.get("nome") or dados.get("condicao_pagamento")
+        payload["condicao_pagamento"] = dados.get("condicao_pagamento")
         payload["quantidade_parcelas"] = dados.get("quantidade_parcelas") or 1
         payload["intervalo_dias"] = dados.get("intervalo_dias") or 30
-
-    elif entidade == "formas_pagamento":
-        payload["forma_pagamento"] = dados.get("nome") or dados.get("forma_pagamento")
-
+   
     elif entidade == "funcionarios":
-        payload["funcionario"] = dados.get("nome") or dados.get("funcionario")
-        payload["cargo"] = dados.get("cargo")
-        payload["salario"] = dados.get("salario")
-        payload["id_informacao"] = obter_valor(dados, "informacao_id", "informacaoId")
-        payload["fk_endereco"] = obter_valor(dados, "endereco_id", "enderecoId")
+        payload["funcionario"], payload["cpf"], payload["rg"] = dados.get("funcionario"), dados.get("cpf"), dados.get("rg")
+        payload["data_nascimento"], payload["cargo"], payload["salario"] = dados.get("data_nascimento"), dados.get("cargo"), dados.get("salario") or 0
+        payload["data_admissao"], payload["id_cidade"] = dados.get("data_admissao"), obter_valor(dados, "id_cidade")
+        payload["logradouro"], payload["numero"], payload["bairro"] = dados.get("logradouro"), dados.get("numero"), dados.get("bairro")
+        payload["cep"], payload["complemento"] = dados.get("cep"), dados.get("complemento")
+        payload["telefone"], payload["email"] = dados.get("telefone"), dados.get("email")
 
-    if coluna_existe(colunas, "ativo"):
-        payload["ativo"] = converter_status_para_ativo(dados.get("status"))
-
+    if coluna_existe(colunas, "ativo"): payload["ativo"] = converter_status_para_ativo(dados.get("ativo", 1))
     return limpar_payload(payload, colunas)
 
-
-# ============================================================
-# SELECTS
-# ============================================================
-
 def montar_select(entidade, colunas):
-    if entidade == "paises":
-        status = "'Ativo' AS status"
-
-        if coluna_existe(colunas, "ativo"):
-            status = "IF(ativo = 1, 'Ativo', 'Inativo') AS status"
-
-        return f"""
-            SELECT
-                id_pais AS id,
-                pais AS nome,
-                {selecionar_coluna(colunas, "sigla")},
-                {selecionar_coluna(colunas, "ddi")},
-                {selecionar_coluna(colunas, "moeda")},
-                {selecionar_coluna(colunas, "nacionalidade")},
-                {selecionar_coluna(colunas, "codigo_ibge")},
-                {status}
-            FROM paises
-            ORDER BY id_pais DESC
-        """
-
-    if entidade == "estados":
-        status = "'Ativo' AS status"
-
-        if coluna_existe(colunas, "ativo"):
-            status = "IF(ativo = 1, 'Ativo', 'Inativo') AS status"
-
-        return f"""
-            SELECT
-                id_estado AS id,
-                id_pais AS pais_id,
-                estado AS nome,
-                {selecionar_coluna(colunas, "uf")},
-                {selecionar_coluna(colunas, "codigo_ibge")},
-                {status}
-            FROM estados
-            ORDER BY id_estado DESC
-        """
-
-    if entidade == "cidades":
-        return """
-            SELECT
-                c.id_cidade AS id,
-                e.id_pais AS pais_id,
-                c.id_estado AS estado_id,
-                c.cidade AS nome,
-                c.ddd AS ddd,
-                c.codigo_ibge AS codigo_ibge,
-                'Ativo' AS status
-            FROM cidades c
-            INNER JOIN estados e ON e.id_estado = c.id_estado
-            ORDER BY c.id_cidade DESC
-        """
-
-    if entidade == "enderecos":
-        status = "'Ativo' AS status"
-
-        if coluna_existe(colunas, "ativo"):
-            status = "IF(en.ativo = 1, 'Ativo', 'Inativo') AS status"
-
-        campo_endereco = "en.endereco AS logradouro"
-
-        if not coluna_existe(colunas, "endereco") and coluna_existe(colunas, "logradouro"):
-            campo_endereco = "en.logradouro AS logradouro"
-
-        complemento = "NULL AS complemento"
-
-        if coluna_existe(colunas, "complemento"):
-            complemento = "en.complemento AS complemento"
-
-        return f"""
-            SELECT
-                en.id_endereco AS id,
-                p.id_pais AS pais_id,
-                e.id_estado AS estado_id,
-                en.id_cidade AS cidade_id,
-                {campo_endereco},
-                en.numero AS numero,
-                en.bairro AS bairro,
-                en.cep AS cep,
-                {complemento},
-                {status}
-            FROM enderecos en
-            INNER JOIN cidades c ON c.id_cidade = en.id_cidade
-            INNER JOIN estados e ON e.id_estado = c.id_estado
-            INNER JOIN paises p ON p.id_pais = e.id_pais
-            ORDER BY en.id_endereco DESC
-        """
-
-    if entidade == "informacoes":
-        status = "'Ativo' AS status"
-
-        if coluna_existe(colunas, "ativo"):
-            status = "IF(ativo = 1, 'Ativo', 'Inativo') AS status"
-
-        return f"""
-            SELECT
-                id_informacao AS id,
-                {selecionar_coluna(colunas, "telefone")},
-                {selecionar_coluna(colunas, "email")},
-                {selecionar_coluna(colunas, "cpf_cnpj", "documento", "'00000000000000'")},
-                {selecionar_coluna(colunas, "celular")},
-                {selecionar_coluna(colunas, "ie")},
-                {selecionar_coluna(colunas, "tipo_pessoa")},
-                {selecionar_coluna(colunas, "rg")},
-                {selecionar_coluna(colunas, "nome_fantasia")},
-                {selecionar_coluna(colunas, "observacao")},
-                {status}
-            FROM informacoes
-            ORDER BY id_informacao DESC
-        """
-
-    if entidade == "clientes":
-        status = "'Ativo' AS status"
-
-        if coluna_existe(colunas, "ativo"):
-            status = "IF(ativo = 1, 'Ativo', 'Inativo') AS status"
-
-        return f"""
-            SELECT
-                id_cliente AS id,
-                cliente AS nome,
-                {selecionar_coluna(colunas, "apelido")},
-                {selecionar_coluna(colunas, "tipo")},
-                fk_endereco AS endereco_id,
-                id_informacao AS informacao_id,
-                {status}
-            FROM clientes
-            ORDER BY id_cliente DESC
-        """
-
-    if entidade == "fornecedores":
-        status = "'Ativo' AS status"
-
-        if coluna_existe(colunas, "ativo"):
-            status = "IF(ativo = 1, 'Ativo', 'Inativo') AS status"
-
-        return f"""
-            SELECT
-                id_fornecedor AS id,
-                fornecedor AS nome,
-                {selecionar_coluna(colunas, "categoria")},
-                fk_endereco AS endereco_id,
-                id_informacao AS informacao_id,
-                {status}
-            FROM fornecedores
-            ORDER BY id_fornecedor DESC
-        """
-
-    if entidade == "produtos":
-        status = "'Ativo' AS status"
-
-        if coluna_existe(colunas, "ativo"):
-            status = "IF(ativo = 1, 'Ativo', 'Inativo') AS status"
-
-        return f"""
-            SELECT
-                id_produto AS id,
-                produto AS nome,
-                {selecionar_coluna(colunas, "sku")},
-                {selecionar_coluna(colunas, "categoria")},
-                {selecionar_coluna(colunas, "unidade")},
-                {selecionar_coluna(colunas, "preco_custo")},
-                preco_venda AS preco,
-                saldo AS estoque,
-                {selecionar_coluna(colunas, "valor_ultima_compra")},
-                {selecionar_coluna(colunas, "data_ultima_compra")},
-                {status}
-            FROM produtos
-            ORDER BY id_produto DESC
-        """
-
-    if entidade == "modelos":
-        status = "'Ativo' AS status"
-
-        if coluna_existe(colunas, "ativo"):
-            status = "IF(ativo = 1, 'Ativo', 'Inativo') AS status"
-
-        return f"""
-            SELECT
-                id_modelo AS id,
-                modelo AS nome,
-                {selecionar_coluna(colunas, "descricao")},
-                {selecionar_coluna(colunas, "marca")},
-                {selecionar_coluna(colunas, "ano_fabricacao", "ano")},
-                {status}
-            FROM modelos
-            ORDER BY id_modelo DESC
-        """
-
-    if entidade == "veiculos":
-        return """
-            SELECT
-                v.id_veiculo AS id,
-                v.fk_modelo AS modelo_id,
-                m.marca AS marca,
-                m.descricao AS descricao,
-                m.ano_fabricacao AS ano,
-                v.placa AS placa,
-                v.renavam AS renavam,
-                v.chassi AS chassi,
-                v.cor AS cor,
-                v.ano_fabricacao AS ano_fabricacao,
-                v.ano_modelo AS ano_modelo,
-                v.combustivel AS combustivel,
-                v.quilometragem AS quilometragem,
-                'Ativo' AS status
-            FROM veiculos v
-            INNER JOIN modelos m ON m.id_modelo = v.fk_modelo
-            ORDER BY v.id_veiculo DESC
-        """
-
-    if entidade == "transportadores":
-        status = "'Ativo' AS status"
-
-        if coluna_existe(colunas, "ativo"):
-            status = "IF(t.ativo = 1, 'Ativo', 'Inativo') AS status"
-
-        return f"""
-            SELECT
-                t.id_transportador AS id,
-                t.transportador AS nome,
-                NULL AS tipo_frete,
-                t.fk_endereco AS endereco_id,
-                t.fk_informacao AS informacao_id,
-                {status}
-            FROM transportadores t
-            ORDER BY t.id_transportador DESC
-        """
-
-    if entidade == "condicoes_pagamento":
-        status = "'Ativo' AS status"
-
-        if coluna_existe(colunas, "ativo"):
-            status = "IF(ativo = 1, 'Ativo', 'Inativo') AS status"
-
-        return f"""
-            SELECT
-                id_condicao_pagamento AS id,
-                condicao_pagamento AS nome,
-                {selecionar_coluna(colunas, "quantidade_parcelas")},
-                {selecionar_coluna(colunas, "intervalo_dias")},
-                {status}
-            FROM condicoes_pagamento
-            ORDER BY id_condicao_pagamento DESC
-        """
-
-    if entidade == "formas_pagamento":
-        status = "'Ativo' AS status"
-
-        if coluna_existe(colunas, "ativo"):
-            status = "IF(ativo = 1, 'Ativo', 'Inativo') AS status"
-
-        return f"""
-            SELECT
-                id_forma_pagamento AS id,
-                forma_pagamento AS nome,
-                {status}
-            FROM formas_pagamento
-            ORDER BY id_forma_pagamento DESC
-        """
-
-    if entidade == "funcionarios":
-        status = "'Ativo' AS status"
-
-        if coluna_existe(colunas, "ativo"):
-            status = "IF(ativo = 1, 'Ativo', 'Inativo') AS status"
-
-        return f"""
-            SELECT
-                id_funcionario AS id,
-                funcionario AS nome,
-                {selecionar_coluna(colunas, "cargo")},
-                {selecionar_coluna(colunas, "salario")},
-                {selecionar_coluna(colunas, "id_informacao", "informacao_id")},
-                {selecionar_coluna(colunas, "fk_endereco", "endereco_id")},
-                {status}
-            FROM funcionarios
-            ORDER BY id_funcionario DESC
-        """
-
+    status = "IF(ativo = 1, 'Ativo', 'Inativo') AS status" if coluna_existe(colunas, "ativo") else "'Ativo' AS status"
+    
+    if entidade == "paises": return f"SELECT id_pais AS id, pais, sigla, ddi, moeda, {status} FROM paises ORDER BY id_pais DESC"
+    if entidade == "estados": return f"SELECT id_estado AS id, id_pais, estado, uf, {status} FROM estados ORDER BY id_estado DESC"
+    if entidade == "cidades": return f"SELECT id_cidade AS id, id_estado, cidade, ddd, {status} FROM cidades ORDER BY id_cidade DESC"
+    if entidade == "clientes": return f"SELECT id_cliente AS id, cliente, cpf_cnpj, email, telefone, id_cidade, logradouro, numero, bairro, cep, complemento, observacao, {status} FROM clientes ORDER BY id_cliente DESC"
+    if entidade == "fornecedores": return f"SELECT id_fornecedor AS id, fornecedor, cpf_cnpj, email, telefone, id_cidade, logradouro, numero, bairro, cep, complemento, observacao, categoria, {status} FROM fornecedores ORDER BY id_fornecedor DESC"
+    if entidade == "produtos": return f"SELECT id_produto AS id, produto, sku, categoria, unidade, preco_custo, preco_venda, saldo, {status} FROM produtos ORDER BY id_produto DESC"
+    if entidade == "marcas": return f"SELECT id_marca AS id, nome, slug FROM marcas ORDER BY id_marca DESC"
+    if entidade == "modelos": return f"SELECT id_modelo AS id, id_marca, modelo, descricao, ano_fabricacao, {status} FROM modelos ORDER BY id_modelo DESC"
+    if entidade == "veiculos": return f"SELECT id_veiculo AS id, fk_modelo, placa, renavam, chassi, cor, ano_fabricacao, ano_modelo, combustivel, quilometragem, {status} FROM veiculos ORDER BY id_veiculo DESC"
+    if entidade == "transportadores": return f"SELECT id_transportador AS id, transportador, tipo_frete, cpf_cnpj, email, telefone, id_cidade, logradouro, numero, bairro, cep, complemento, {status} FROM transportadores ORDER BY id_transportador DESC"
+    if entidade == "condicoes_pagamento": return f"SELECT id_condicao_pagamento AS id, condicao_pagamento, quantidade_parcelas, intervalo_dias, {status} FROM condicoes_pagamento ORDER BY id_condicao_pagamento DESC"
+    if entidade == "funcionarios": return f"SELECT id_funcionario AS id, funcionario, cpf, rg, data_nascimento, cargo, salario, data_admissao, id_cidade, logradouro, numero, bairro, cep, complemento, telefone, email, {status} FROM funcionarios ORDER BY id_funcionario DESC"
     return None
 
-
-# ============================================================
-# VALIDAÇÕES
-# ============================================================
-
 def validar_entidade(entidade, dados):
-    if entidade == "paises":
-        return validar_obrigatorio_flexivel(dados, [
-            ["nome"],
-            ["sigla"],
-            ["ddi"]
-        ])
+    regras = {
+        "paises": [["pais"], ["sigla"], ["ddi"]],
+        "estados": [["id_pais"], ["estado"], ["uf"]],
+        "cidades": [["id_estado"], ["cidade"]],
+        "clientes": [["cliente"], ["cpf_cnpj"]],
+        "fornecedores": [["fornecedor"], ["cpf_cnpj"]],
+        "produtos": [["produto"]],
+        "marcas": [["nome"]],
+        "modelos": [["modelo"], ["id_marca"]],
+        "veiculos": [["fk_modelo"], ["placa"]],
+        "transportadores": [["transportador"]],
+        "condicoes_pagamento": [["condicao_pagamento"]],
+        "funcionarios": [["funcionario"], ["cpf"], ["id_cidade"]]
+    }
+    return validar_obrigatorio_flexivel(dados, regras.get(entidade, []))
 
-    if entidade == "estados":
-        return validar_obrigatorio_flexivel(dados, [
-            ["pais_id", "paisId"],
-            ["nome"],
-            ["uf"]
-        ])
+@app.route("/api/<entidade>", methods=["GET"])
+def listar_entidade(entidade):
+    conexao = conectar_banco()
+    cursor = conexao.cursor(dictionary=True)
+    sql = montar_select(entidade, obter_colunas(conexao, ENTIDADES[entidade]["table"]))
+    cursor.execute(sql)
+    registros = cursor.fetchall()
+    conexao.close()
+    return jsonify(normalizar_registros(registros)), 200
 
-    if entidade == "cidades":
-        return validar_obrigatorio_flexivel(dados, [
-            ["estado_id", "estadoId"],
-            ["nome"]
-        ])
+@app.route("/api/<entidade>", methods=["POST"])
+def cadastrar_entidade(entidade):
+    dados = request.get_json() or {}
+    campos_faltando = validar_entidade(entidade, dados)
+    if campos_faltando: return jsonify({"status": "erro", "mensagem": f"Faltam campos: {campos_faltando}"}), 400
+    conexao = conectar_banco()
+    cursor = conexao.cursor()
+    payload = montar_payload(entidade, dados, obter_colunas(conexao, ENTIDADES[entidade]["table"]))
+    colunas, valores = list(payload.keys()), list(payload.values())
+    sql = f"INSERT INTO {ENTIDADES[entidade]['table']} ({', '.join(colunas)}) VALUES ({', '.join(['%s'] * len(colunas))})"
+    cursor.execute(sql, valores)
+    conexao.commit()
+    id_criado = cursor.lastrowid
+    conexao.close()
+    return jsonify({"status": "sucesso", "id_criado": id_criado}), 201
 
-    if entidade == "enderecos":
-        return validar_obrigatorio_flexivel(dados, [
-            ["cidade_id", "cidadeId"]
-        ])
+@app.route("/api/<entidade>/<int:id_registro>", methods=["PUT"])
+def atualizar_entidade(entidade, id_registro):
+    dados = request.get_json() or {}
+    campos_faltando = validar_entidade(entidade, dados)
+    if campos_faltando: return jsonify({"status": "erro", "mensagem": f"Faltam campos: {campos_faltando}"}), 400
+    conexao = conectar_banco()
+    cursor = conexao.cursor()
+    payload = montar_payload(entidade, dados, obter_colunas(conexao, ENTIDADES[entidade]["table"]))
+    set_sql = ", ".join([f"{col} = %s" for col in payload.keys()])
+    valores = list(payload.values()) + [id_registro]
+    sql = f"UPDATE {ENTIDADES[entidade]['table']} SET {set_sql} WHERE {ENTIDADES[entidade]['pk']} = %s"
+    cursor.execute(sql, valores)
+    conexao.commit()
+    conexao.close()
+    return jsonify({"status": "sucesso"}), 200
 
-    if entidade == "informacoes":
-        return []
+@app.route("/api/<entidade>/<int:id_registro>", methods=["DELETE"])
+def excluir_entidade(entidade, id_registro):
+    conexao = conectar_banco()
+    cursor = conexao.cursor()
+    try:
+        cursor.execute(f"DELETE FROM {ENTIDADES[entidade]['table']} WHERE {ENTIDADES[entidade]['pk']} = %s", (id_registro,))
+        conexao.commit()
+        return jsonify({"status": "sucesso"}), 200
+    except Exception as e:
+        return jsonify({"status": "erro", "mensagem": str(e)}), 400
+    finally:
+        conexao.close()
 
-    if entidade == "clientes":
-        return validar_obrigatorio_flexivel(dados, [
-            ["nome"],
-            ["endereco_id", "enderecoId"],
-            ["informacao_id", "informacaoId"]
-        ])
-
-    if entidade == "fornecedores":
-        return validar_obrigatorio_flexivel(dados, [
-            ["nome"],
-            ["endereco_id", "enderecoId"],
-            ["informacao_id", "informacaoId"]
-        ])
-
-    if entidade == "produtos":
-        return validar_obrigatorio_flexivel(dados, [
-            ["nome"]
-        ])
-
-    if entidade == "modelos":
-        return validar_obrigatorio_flexivel(dados, [
-            ["nome"]
-        ])
-
-    if entidade == "veiculos":
-        return validar_obrigatorio_flexivel(dados, [
-            ["modelo_id", "modeloId"],
-            ["placa"]
-        ])
-
-    if entidade == "transportadores":
-        return validar_obrigatorio_flexivel(dados, [
-            ["nome", "transportador"],
-            ["endereco_id", "enderecoId"],
-            ["informacao_id", "informacaoId"]
-        ])
-
-    return []
-
-
-# ============================================================
-# ROTAS DO FRONT-END
-# ============================================================
 
 @app.route("/")
 def index():
@@ -806,342 +378,107 @@ def status_banco():
         if conexao.is_connected():
             conexao.close()
 
+    @app.route('/api/veiculos', methods=['POST'])
+    def salvar_veiculo():
+        try:
+            dados = request.get_json()
+            
+            # ... seu código de INSERT no banco de dados ...
+            
+            conexao.commit() # Salva definitivamente
+            return jsonify({"mensagem": "Sucesso"}), 201
 
-# ============================================================
-# API GENÉRICA
-# ============================================================
+        except Exception as e:
+            conexao.rollback() # <--- ESSA É A LINHA MÁGICA
+            print(f"Erro ao salvar: {e}")
+            return str(e), 500
 
-@app.route("/api/<entidade>", methods=["GET"])
-def listar_entidade(entidade):
-    if entidade not in ENTIDADES:
-        return jsonify({
-            "status": "erro",
-            "mensagem": f"Entidade '{entidade}' não encontrada."
-        }), 404
-
-    conexao = conectar_banco()
-
-    if not conexao:
-        return jsonify({
-            "status": "erro",
-            "mensagem": "Erro ao conectar ao banco de dados."
-        }), 500
-
-    cursor = None
-
-    try:
-        tabela = ENTIDADES[entidade]["table"]
-        colunas = obter_colunas(conexao, tabela)
-        sql = montar_select(entidade, colunas)
-
-        if not sql:
-            return jsonify({
-                "status": "erro",
-                "mensagem": f"SELECT da entidade '{entidade}' não configurado."
-            }), 500
-
-        cursor = conexao.cursor(dictionary=True)
-        cursor.execute(sql)
-
-        registros = cursor.fetchall()
-
-        return jsonify(normalizar_registros(registros)), 200
-
-    except Exception as erro:
-        print(f"ERRO AO LISTAR {entidade.upper()}:", erro)
-
-        return jsonify({
-            "status": "erro",
-            "mensagem": str(erro)
-        }), 500
-
-    finally:
-        if cursor:
+        finally:
             cursor.close()
-
-        if conexao and conexao.is_connected():
-            conexao.close()
-
-
-@app.route("/api/<entidade>", methods=["POST"])
-def cadastrar_entidade(entidade):
-    if entidade not in ENTIDADES:
-        return jsonify({
-            "status": "erro",
-            "mensagem": f"Entidade '{entidade}' não encontrada."
-        }), 404
-
-    dados = request.get_json() or {}
-
-    campos_faltando = validar_entidade(entidade, dados)
-
-    if campos_faltando:
-        return jsonify({
-            "status": "erro",
-            "mensagem": f"Campos obrigatórios não preenchidos: {', '.join(campos_faltando)}",
-            "campos_faltando": campos_faltando,
-            "dados_recebidos": dados
-        }), 400
-
-    conexao = conectar_banco()
-
-    if not conexao:
-        return jsonify({
-            "status": "erro",
-            "mensagem": "Erro ao conectar ao banco de dados."
-        }), 500
-
-    cursor = None
-
-    try:
-        tabela = ENTIDADES[entidade]["table"]
-        colunas_tabela = obter_colunas(conexao, tabela)
-        payload = montar_payload(entidade, dados, colunas_tabela)
-
-        if not payload:
-            return jsonify({
-                "status": "erro",
-                "mensagem": "Nenhum campo válido recebido.",
-                "dados_recebidos": dados
-            }), 400
-
-        colunas = list(payload.keys())
-        valores = list(payload.values())
-
-        placeholders = ", ".join(["%s"] * len(colunas))
-        colunas_sql = ", ".join(colunas)
-
-        sql = f"""
-            INSERT INTO {tabela} ({colunas_sql})
-            VALUES ({placeholders})
-        """
-
-        print(f"CADASTRANDO EM {tabela}")
-        print("SQL:", sql)
-        print("VALORES:", valores)
-
-        cursor = conexao.cursor()
-        cursor.execute(sql, valores)
-        conexao.commit()
-
-        return jsonify({
-            "status": "sucesso",
-            "mensagem": f"Registro cadastrado com sucesso em {entidade}.",
-            "tabela": tabela,
-            "id_criado": cursor.lastrowid,
-            "dados_recebidos": dados
-        }), 201
-
-    except Exception as erro:
-        conexao.rollback()
-
-        print(f"ERRO AO CADASTRAR {entidade.upper()}:", erro)
-
-        return jsonify({
-            "status": "erro",
-            "mensagem": str(erro),
-            "dados_recebidos": dados
-        }), 500
-
-    finally:
-        if cursor:
-            cursor.close()
-
-        if conexao and conexao.is_connected():
-            conexao.close()
-
-
-@app.route("/api/<entidade>/<int:id_registro>", methods=["PUT"])
-def atualizar_entidade(entidade, id_registro):
-    if entidade not in ENTIDADES:
-        return jsonify({
-            "status": "erro",
-            "mensagem": f"Entidade '{entidade}' não encontrada."
-        }), 404
-
-    dados = request.get_json() or {}
-
-    campos_faltando = validar_entidade(entidade, dados)
-
-    if campos_faltando:
-        return jsonify({
-            "status": "erro",
-            "mensagem": f"Campos obrigatórios não preenchidos: {', '.join(campos_faltando)}",
-            "campos_faltando": campos_faltando,
-            "dados_recebidos": dados
-        }), 400
-
-    conexao = conectar_banco()
-
-    if not conexao:
-        return jsonify({
-            "status": "erro",
-            "mensagem": "Erro ao conectar ao banco de dados."
-        }), 500
-
-    cursor = None
-
-    try:
-        config = ENTIDADES[entidade]
-        tabela = config["table"]
-        pk = config["pk"]
-
-        colunas_tabela = obter_colunas(conexao, tabela)
-        payload = montar_payload(entidade, dados, colunas_tabela)
-
-        if not payload:
-            return jsonify({
-                "status": "erro",
-                "mensagem": "Nenhum campo válido recebido.",
-                "dados_recebidos": dados
-            }), 400
-
-        set_sql = ", ".join([f"{coluna} = %s" for coluna in payload.keys()])
-        valores = list(payload.values())
-        valores.append(id_registro)
-
-        sql = f"""
-            UPDATE {tabela}
-            SET {set_sql}
-            WHERE {pk} = %s
-        """
-
-        print(f"ATUALIZANDO {tabela}")
-        print("SQL:", sql)
-        print("VALORES:", valores)
-
-        cursor = conexao.cursor()
-        cursor.execute(sql, valores)
-        conexao.commit()
-
-        return jsonify({
-            "status": "sucesso",
-            "mensagem": f"Registro atualizado com sucesso em {entidade}.",
-            "tabela": tabela,
-            "id_atualizado": id_registro,
-            "dados_recebidos": dados
-        }), 200
-
-    except Exception as erro:
-        conexao.rollback()
-
-        print(f"ERRO AO ATUALIZAR {entidade.upper()}:", erro)
-
-        return jsonify({
-            "status": "erro",
-            "mensagem": str(erro),
-            "dados_recebidos": dados
-        }), 500
-
-    finally:
-        if cursor:
-            cursor.close()
-
-        if conexao and conexao.is_connected():
-            conexao.close()
-
-
-@app.route("/api/<entidade>/<int:id_registro>", methods=["DELETE"])
-def excluir_entidade(entidade, id_registro):
-    if entidade not in ENTIDADES:
-        return jsonify({
-            "status": "erro",
-            "mensagem": f"Entidade '{entidade}' não encontrada."
-        }), 404
-
-    conexao = conectar_banco()
-
-    if not conexao:
-        return jsonify({
-            "status": "erro",
-            "mensagem": "Erro ao conectar ao banco de dados."
-        }), 500
-
-    cursor = None
-
-    try:
-        tabela = ENTIDADES[entidade]["table"]
-        pk = ENTIDADES[entidade]["pk"]
-
-        sql = f"""
-            DELETE FROM {tabela}
-            WHERE {pk} = %s
-        """
-
-        cursor = conexao.cursor()
-        cursor.execute(sql, (id_registro,))
-        conexao.commit()
-
-        return jsonify({
-            "status": "sucesso",
-            "mensagem": f"Registro excluído com sucesso de {entidade}.",
-            "tabela": tabela,
-            "id_excluido": id_registro
-        }), 200
-
-    except Exception as erro:
-        conexao.rollback()
-        print(f"ERRO AO EXCLUIR {entidade.upper()}:", erro)
-
-        # Captura o erro de chave estrangeira do MySQL (Código 1451)
-        if "1451" in str(erro):
-            mensagem_usuario = "Não é possível excluir este registro porque existem outros dados vinculados a ele."
-        else:
-            mensagem_usuario = "Ocorreu um erro interno ao processar a exclusão."
-
-        return jsonify({
-            "status": "erro",
-            "mensagem": mensagem_usuario,
-            "detalhe": str(erro) # Opcional: mantém o erro técnico guardado
-        }), 400
-
-    finally:
-        if cursor:
-            cursor.close()
-
-        if conexao and conexao.is_connected():
-            conexao.close()
-
-
-# ============================================================
-# TRATAMENTO DE ERROS
-# ============================================================
-
-@app.errorhandler(404)
-def erro_404(erro):
-    if request.path.startswith("/api/"):
-        return jsonify({
-            "status": "erro",
-            "mensagem": "Rota da API não encontrada.",
-            "rota": request.path
-        }), 404
-
-    return send_from_directory(frontend_path, "index.html")
-
-
-@app.errorhandler(500)
-def erro_500(erro):
-    if request.path.startswith("/api/"):
-        return jsonify({
-            "status": "erro",
-            "mensagem": "Erro interno no servidor.",
-            "detalhe": str(erro)
-        }), 500
-
-    return jsonify({
-        "status": "erro",
-        "mensagem": "Erro interno no servidor.",
-        "detalhe": str(erro)
-    }), 500
-
-
-# ============================================================
-# INICIALIZAÇÃO
-# ============================================================
+            # Não feche a conexão se ela for global, mas garanta que o cursor feche.
+    from flask import request, jsonify
+
+
+    @app.route('/api/modelos', methods=['POST'])
+    def salvar_modelo():
+        data = request.get_json()
+        
+        # Capturando os novos campos que o JS está enviando
+        modelo_nome = data.get('modelo')
+        id_marca = data.get('id_marca') # A chave que faltava
+        tipo_veiculo = data.get('tipo')
+        descricao = data.get('descricao')
+
+        # Validação básica
+        if not modelo_nome or not id_marca:
+            return "Erro: Nome do modelo e Marca são obrigatórios", 400
+
+        # Lógica de salvamento no banco (Exemplo com SQLAlchemy)
+        try:
+            novo_modelo = Modelo(
+                modelo=modelo_nome,
+                fk_marca=id_marca,    # Mapeando o id_marca para sua coluna no banco
+                tipo=tipo_veiculo,    # Mapeando o tipo
+                descricao=descricao   # Mapeando a descrição
+            )
+            db.session.add(novo_modelo)
+            db.session.commit()
+            
+            return jsonify({"id": novo_modelo.id, "mensagem": "Modelo salvo com sucesso"}), 201
+            
+        except Exception as e:
+            print(f"Erro ao salvar: {e}")
+            return str(e), 500
+
+# Exemplo de como sua rota no web_app.py deve processar os dados
+    @app.route('/api/modelos', methods=['POST'])
+    def criar_modelo():
+        try:
+            data = request.get_json()
+            
+            # Captura os dados enviados pelo JavaScript
+            modelo_nome = data.get('modelo')
+            id_marca = data.get('id_marca') # A chave que você pediu
+            tipo = data.get('tipo')
+            descricao = data.get('descricao')
+
+            # Debug: veja se os dados estão chegando no terminal
+            print(f"Dados recebidos: Modelo={modelo_nome}, Marca={id_marca}, Tipo={tipo}, Desc={descricao}")
+
+            # Lógica de persistência
+            # Certifique-se de que sua classe Modelo aceita esses campos
+            novo_modelo = Modelo(
+                modelo=modelo_nome,
+                fk_marca=id_marca, 
+                tipo=tipo,
+                descricao=descricao
+            )
+            db.session.add(novo_modelo)
+            db.session.commit()
+            
+            return jsonify({"id": novo_modelo.id, "status": "sucesso"}), 201
+
+        except Exception as e:
+            # ISSO vai imprimir o erro real no seu terminal para você ver
+            print(f"ERRO CRÍTICO NO BACKEND: {e}") 
+            return str(e), 500
+
+    @app.route('/api/veiculos', methods=['POST'])
+    def salvar_veiculo():
+        data = request.get_json()
+        
+        # É AQUI QUE A MÁGICA ACONTECE:
+        novo_veiculo = Veiculo(
+            placa=data.get('placa'),
+            fk_modelo=data.get('fk_modelo'), # <--- ISSO É O QUE FALTA NO SEU CÓDIGO
+            cor=data.get('cor'),
+            combustivel=data.get('combustivel'),
+            quilometragem=data.get('quilometragem')
+        )
+        
+        db.session.add(novo_veiculo)
+        db.session.commit()
+        return jsonify({"status": "sucesso"}), 201
 
 if __name__ == "__main__":
-    app.run(
-        host="127.0.0.1",
-        port=5000,
-        debug=True
-    )
+    app.run(host="127.0.0.1", port=5000, debug=True)
