@@ -272,3 +272,15 @@
 }
 
 body { text-transform: uppercase; }
+
+/* Força as colunas de formulário a dividirem a tela em 50/50 em qualquer tela */
+.modal-body .row > .col-md-6 {
+    flex: 0 0 auto !important;
+    width: 50% !important;
+}
+
+/* Força as colunas de 3 itens (como preço e saldo) a dividirem a tela em 33% */
+.modal-body .row > .col-md-4 {
+    flex: 0 0 auto !important;
+    width: 33.33333333% !important;
+}

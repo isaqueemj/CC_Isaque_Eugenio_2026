@@ -7,12 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/marcas');
             const data = await res.json();
             
-            // MANTIDO O SEU MAP, ADICIONANDO toUpperCase() E OS ÍCONES
             tbody.innerHTML = data.map(m => `
                 <tr>
-                    <td>${m.nome ? m.nome.toUpperCase() : ''}</td>
+                    <td>${m.marca ? m.marca.toUpperCase() : ''}</td>
                     <td>
-                        <button class="btn btn-sm btn-warning" onclick="editar(${m.id}, '${m.nome}')"><i class="fa-solid fa-pen"></i> EDITAR</button>
+                        <button class="btn btn-sm btn-warning" onclick="editar(${m.id}, '${m.marca}')"><i class="fa-solid fa-pen"></i> EDITAR</button>
                         <button class="btn btn-sm btn-danger" onclick="apagar(${m.id})"><i class="fa-solid fa-trash"></i> APAGAR</button>
                     </td>
                 </tr>
@@ -22,66 +21,72 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // FUNÇÃO GLOBAL PARA EDITAR (CHAMADA PELO ONCLICK)
+    // FUNÇÃO GLOBAL PARA EDITAR
     window.editar = function(id, nome) {
         document.getElementById('crudForm').reset();
         
-        // PREENCHE O ID OCULTO E O NOME
+        // PREENCHE O ID OCULTO
         document.getElementById('recordId').value = id;
-        document.getElementsByName('nome')[0].value = nome.toUpperCase();
+        
+        // PREENCHE O CAMPO DE TEXTO (Corrigido para usar a variável 'nome')
+        const inputMarca = document.querySelector('input[name="marca"]');
+        if (inputMarca) {
+            inputMarca.value = nome ? nome.toUpperCase() : '';
+        }
         
         // ABRE O MODAL
         new bootstrap.Modal(document.getElementById('crudModal')).show();
     };
 
-    // FUNÇÃO GLOBAL PARA APAGAR (CHAMADA PELO ONCLICK)
+    // FUNÇÃO GLOBAL PARA APAGAR
     window.apagar = async function(id) {
         if(confirm("DESEJA APAGAR ESTA MARCA?")) {
             const res = await fetch(`/api/marcas/${id}`, { method: 'DELETE' });
             if(res.ok) {
                 alert("APAGADO COM SUCESSO!");
-                carregarTabela(); // RECARREGA A TABELA SEM PRECISAR DAR RELOAD NA PÁGINA INTEIRA
+                carregarTabela();
             } else {
                 alert("ERRO AO APAGAR!");
             }
         }
     };
 
-    // EVENTO DO BOTÃO NOVO (LIMPA O FORMULÁRIO ANTES DE ABRIR)
+    // EVENTO DO BOTÃO NOVO
     const btnNovo = document.getElementById('btnNovo');
     if(btnNovo) {
         btnNovo.addEventListener('click', () => {
             document.getElementById('crudForm').reset();
-            document.getElementById('recordId').value = ''; // LIMPA O ID PARA GARANTIR QUE É UM POST
+            document.getElementById('recordId').value = ''; 
             new bootstrap.Modal(document.getElementById('crudModal')).show();
         });
     }
 
-    // O SEU SUBMIT REFORMULADO PARA ATENDER POST (NOVO) E PUT (EDITAR)
+    // SUBMIT REFORMULADO (SALVAR)
     document.getElementById('crudForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const idInput = document.getElementById('recordId');
-        const id = idInput ? idInput.value : '';
-        const nomeValor = document.getElementsByName('nome')[0].value.toUpperCase();
+        const id = document.getElementById('recordId').value;
+        const nomeValor = document.querySelector('input[name="marca"]').value.trim().toUpperCase();
         
-        const data = { nome: nomeValor };
-        
-        // SE TIVER ID, É PUT (EDITAR). SE NÃO TIVER, É POST (CRIAR).
         const url = id ? `/api/marcas/${id}` : '/api/marcas';
         const metodo = id ? 'PUT' : 'POST';
 
-        const res = await fetch(url, { 
-            method: metodo, 
-            headers: {'Content-Type': 'application/json'}, 
-            body: JSON.stringify(data) 
-        });
-        
-        if(res.ok) {
-            alert("SALVO COM SUCESSO!");
-            location.reload(); // MANTIDO O SEU RELOAD
-        } else {
-            alert("ERRO AO SALVAR!");
+        try {
+            const res = await fetch(url, { 
+                method: metodo, 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ marca: nomeValor }) 
+            });
+            
+            if (res.ok) {
+                alert("SALVO COM SUCESSO!");
+                bootstrap.Modal.getInstance(document.getElementById('crudModal')).hide();
+                carregarTabela();
+            } else {
+                alert("ERRO AO SALVAR!");
+            }
+        } catch (error) {
+            console.error("Erro na requisição:", error);
         }
     });
 

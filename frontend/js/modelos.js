@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const resMarcas = await fetch('/api/marcas');
             const dataMarcas = await resMarcas.json();
-            mapMarcas = new Map(dataMarcas.map(m => [m.id, m.nome]));
+            mapMarcas = new Map(dataMarcas.map(m => [m.id, m.marca]));
 
             const res = await fetch('/api/modelos');
             const data = await res.json();
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch('/api/marcas');
             const data = await res.json();
-            select.innerHTML = '<option value="">Selecione...</option>' + data.map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
+            select.innerHTML = '<option value="">Selecione...</option>' + data.map(m => `<option value="${m.id}">${m.marca}</option>`).join('');
             if(idSelecionado) select.value = idSelecionado;
         } catch (e) {}
     }

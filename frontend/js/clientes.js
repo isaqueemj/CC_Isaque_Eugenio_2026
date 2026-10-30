@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tbody.innerHTML = dataClientes.map(i => `
                 <tr>
                     <td>${i.cliente || ''}</td>
-                    <td>${i.documento || ''}</td>
+                    <td>${i.cpf_cnpj || ''}</td>
                     <td>${mapCidades.get(i.id_cidade) || 'N/A'}</td>
                     <td>${i.telefone || ''}</td>
                     <td>
@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 await carregarSelectCidades();
                 const obj = JSON.parse(btn.dataset.obj);
                 document.getElementById('recordId').value = obj.id;
-                obj.cpf_cnpj = obj.documento; // map for form
                 Object.keys(obj).forEach(k => {
                     const el = document.getElementsByName(k)[0];
                     if(el) el.value = obj[k];

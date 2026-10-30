@@ -12,12 +12,13 @@
 </head>
 <body>
     <div class="app-shell">
-        <aside id="sidebar" class="sidebar">
-            <div class="brand"><i class="fa-solid fa-id-badge"></i><span>ERP Menu</span></div>
-                <!-- Lista de navegação padronizada para todas as páginas -->
-                <nav>
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-layer-group"></i><span>Cidade-Estado-Pais</span>
+            </div>
+            <nav>
                 <!-- Dashboard e Cadastros Base -->
-                <a class="nav-link" href="../dashboard.html"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></a>
+                <a class="nav-link" href="index.html"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></a>
 
                 <hr class="text-white opacity-50 my-2">
 
@@ -35,12 +36,13 @@
                 <a class="nav-link" href="fornecedores.html"><i class="fa-solid fa-truck-field"></i><span>Fornecedores</span></a>
                 <a class="nav-link" href="transportadores.html"><i class="fa-solid fa-truck-fast"></i><span>Transportadores</span></a>
                 <a class="nav-link" href="produtos.html"><i class="fa-solid fa-box"></i><span>Produtos</span></a>
+                <a class="nav-link" href="marcas.html"><i class="fa-solid fa-tag"></i><span>Marcas</span></a>
+                <a class="nav-link" href="categorias.html"><i class="fa-solid fa-tag"></i><span>Categorias</span></a>
 
                 <hr class="text-white opacity-50 my-2">
 
                 <!-- Veículos -->
                 <small class="text-uppercase text-white-50 px-3 small fw-bold">Veículos</small>
-                <a class="nav-link" href="marcas.html"><i class="fa-solid fa-tag"></i><span>Marcas</span></a>
                 <a class="nav-link" href="modelos.html"><i class="fa-solid fa-tags"></i><span>Modelos</span></a>
                 <a class="nav-link" href="veiculos.html"><i class="fa-solid fa-car"></i><span>Veículos</span></a>
 
@@ -48,32 +50,50 @@
 
                 <!-- Administrativo -->
                 <small class="text-uppercase text-white-50 px-3 small fw-bold">Administrativo</small>
-                <a class="nav-link" href="condicoes_pagamento.html"><i class="fa-solid fa-credit-card"></i><span>Condições Pgto.</span></a>
-                <a class="nav-link active" href="funcionarios.html"><i class="fa-solid fa-id-badge"></i><span>Funcionários</span></a>            </nav>
-                </nav>
-        </aside>
+                <a class="nav-link active" href="funcionarios.html"><i class="fa-solid fa-id-badge"></i><span>Funcionários</span></a>            
+                <a class="nav-link" href="relatorio_compras.html"><i class="fa-solid fa-file-invoice-dollar"></i><span>Compras e Contas</span></a>
+            </nav>
+        </aside>       
         <div class="main-wrapper">
-            <header class="topbar"><button id="toggleSidebar" class="btn btn-light btn-sm"><i class="fa-solid fa-bars"></i></button><div><h1>Funcionários</h1></div></header>
+            <header class="topbar">
+                <button id="toggleSidebar" class="btn btn-light btn-sm"><i class="fa-solid fa-bars"></i></button>
+                <div><h1>Funcionários</h1></div>
+            </header>
             <main class="content">
                 <div class="card erp-card">
-                    <div class="card-header d-flex justify-content-between"><span>Listagem</span><button id="btnNovo" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Novo</button></div>
-                    <div class="card-body">
+                    <div class="card-header d-flex justify-content-between">
+                        <span>Listagem</span>
+                        <button id="btnNovo" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Novo</button>
+                    </div>
+                    <div class="card-body table-responsive">
                         <table id="mainTable" class="table table-striped w-100">
-                            <thead><tr><th>Nome</th><th>CPF</th><th>Cargo</th><th>Cidade</th><th>Telefone</th><th>Ações</th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>CPF</th>
+                                    <th>Cargo</th>
+                                    <th>Cidade</th>
+                                    <th>Telefone</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
                             <tbody></tbody>
                         </table>
                     </div>
                 </div>
 
-                <div class="modal fade" id="crudModal" tabindex="-1">
+                <div class="modal fade" id="crudModal" tabindex="-1" data-bs-backdrop="static">
                     <div class="modal-dialog modal-xl">
                         <div class="modal-content">
                             <form id="crudForm">
-                                <div class="modal-header"><h5 class="modal-title">Cadastro de Funcionário</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Cadastro de Funcionário</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
                                 <div class="modal-body">
                                     <input type="hidden" id="recordId" name="id" />
                                     <div class="row g-3">
-                                        <div class="col-md-6"><label class="form-label">Nome Completo *</label><input type="text" name="funcionario" class="form-control text-uppercase" required></div>
+                                        <div class="col-6"><label class="form-label">Nome Completo *</label><input type="text" name="funcionario" class="form-control text-uppercase" required></div>
                                         <div class="col-md-3"><label class="form-label">CPF *</label><input type="text" name="cpf" class="form-control text-uppercase" required></div>
                                         <div class="col-md-3"><label class="form-label">RG</label><input type="text" name="rg" class="form-control text-uppercase"></div>
                                         
@@ -82,8 +102,8 @@
                                         <div class="col-md-3"><label class="form-label">Salário (R$)</label><input type="number" step="0.01" name="salario" class="form-control text-uppercase"></div>
                                         <div class="col-md-3"><label class="form-label">Data Admissão</label><input type="date" name="data_admissao" class="form-control text-uppercase"></div>
                                         
-                                        <div class="col-md-6"><label class="form-label">Email</label><input type="email" name="email" class="form-control text-uppercase"></div>
-                                        <div class="col-md-6"><label class="form-label">Telefone/Celular</label><input type="text" name="telefone" class="form-control text-uppercase"></div>
+                                        <div class="col-6"><label class="form-label">Email</label><input type="email" name="email" class="form-control text-uppercase"></div>
+                                        <div class="col-6"><label class="form-label">Telefone/Celular</label><input type="text" name="telefone" class="form-control text-uppercase"></div>
                                         
                                         <div class="col-md-2"><label class="form-label">CEP</label><input type="text" name="cep" class="form-control text-uppercase"></div>
                                         <div class="col-md-5"><label class="form-label">Logradouro</label><input type="text" name="logradouro" class="form-control text-uppercase"></div>
@@ -92,16 +112,15 @@
                                         <div class="col-md-12"><label class="form-label">Complemento</label><input type="text" name="complemento" class="form-control text-uppercase"></div>
                                         
                                         <div class="col-md-11"><label class="form-label">Cidade *</label><select id="idCidade" name="id_cidade" class="form-select" required></select></div>
-                                        <div class="col-md-1 d-flex align-items-end"><button type="button" class="btn btn-secondary w-100" id="btnNovaCidade"><i class="fa-solid fa-plus"></i></button></div>
+                                        <div class="col-md-1 d-flex align-items-end"><button type="button" class="btn btn-secondary w-100" id="btnNovaCidade" title="Adicionar Cidade"><i class="fa-solid fa-plus"></i></button></div>
                                     </div>
                                 </div>
-                                <div class="modal-footer"><button type="submit" class="btn btn-primary">Salvar</button></div>
+                                <div class="modal-footer"><button type="submit" class="btn btn-primary">Salvar Funcionário</button></div>
                             </form>
                         </div>
                     </div>
                 </div>
 
-                <!-- Modal Cascata 1: Cadastro de Cidade -->
                 <div class="modal fade" id="cidadeModal" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -111,17 +130,16 @@
                                     <div class="row g-3">
                                         <div class="col-md-8"><label class="form-label">Nome da Cidade *</label><input type="text" name="cidade" class="form-control text-uppercase" required></div>
                                         <div class="col-md-4"><label class="form-label">DDD</label><input type="text" name="ddd" class="form-control text-uppercase"></div>
-                                        <div class="col-md-10"><label class="form-label">Estado *</label><select id="idEstado" name="estado_id" class="form-select" required></select></div>
-                                        <div class="col-md-2 d-flex align-items-end"><button type="button" class="btn btn-secondary w-100" id="btnNovoEstado"><i class="fa-solid fa-plus"></i></button></div>
+                                        <div class="col-md-10"><label class="form-label">Estado *</label><select id="idEstado" name="id_estado" class="form-select" required></select></div>
+                                        <div class="col-md-2 d-flex align-items-end"><button type="button" class="btn btn-secondary w-100" id="btnNovoEstado" title="Adicionar Estado"><i class="fa-solid fa-plus"></i></button></div>
                                     </div>
                                 </div>
-                                <div class="modal-footer"><button type="submit" class="btn btn-success">Salvar</button></div>
+                                <div class="modal-footer"><button type="submit" class="btn btn-success">Salvar Cidade</button></div>
                             </form>
                         </div>
                     </div>
                 </div>
 
-                <!-- Modal Cascata 2: Cadastro de Estado -->
                 <div class="modal fade" id="estadoModal" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -132,16 +150,15 @@
                                         <div class="col-md-8"><label class="form-label">Estado *</label><input type="text" name="estado" class="form-control text-uppercase" required></div>
                                         <div class="col-md-4"><label class="form-label">UF *</label><input type="text" name="uf" class="form-control text-uppercase" required></div>
                                         <div class="col-md-10"><label class="form-label">País *</label><select id="idPais" name="id_pais" class="form-select" required></select></div>
-                                        <div class="col-md-2 d-flex align-items-end"><button type="button" class="btn btn-secondary w-100" id="btnNovoPais"><i class="fa-solid fa-plus"></i></button></div>
+                                        <div class="col-md-2 d-flex align-items-end"><button type="button" class="btn btn-secondary w-100" id="btnNovoPais" title="Adicionar País"><i class="fa-solid fa-plus"></i></button></div>
                                     </div>
                                 </div>
-                                <div class="modal-footer"><button type="submit" class="btn btn-success">Salvar</button></div>
+                                <div class="modal-footer"><button type="submit" class="btn btn-success">Salvar Estado</button></div>
                             </form>
                         </div>
                     </div>
                 </div>
 
-                <!-- Modal Cascata 3: Cadastro de País -->
                 <div class="modal fade" id="paisModal" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -149,13 +166,13 @@
                                 <div class="modal-header"><h5 class="modal-title">Novo País</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                                 <div class="modal-body">
                                     <div class="row g-3">
-                                        <div class="col-md-6"><label class="form-label">País *</label><input type="text" name="pais" class="form-control text-uppercase" required></div>
-                                        <div class="col-md-6"><label class="form-label">Moeda *</label><input type="text" name="moeda" class="form-control text-uppercase" required></div>
-                                        <div class="col-md-6"><label class="form-label">Sigla *</label><input type="text" name="sigla" class="form-control text-uppercase" required></div>
-                                        <div class="col-md-6"><label class="form-label">DDI *</label><input type="text" name="ddi" class="form-control text-uppercase" required></div>
+                                        <div class="col-6"><label class="form-label">País *</label><input type="text" name="pais" class="form-control text-uppercase" required></div>
+                                        <div class="col-6"><label class="form-label">Moeda *</label><input type="text" name="moeda" class="form-control text-uppercase" required></div>
+                                        <div class="col-6"><label class="form-label">Sigla *</label><input type="text" name="sigla" class="form-control text-uppercase" required></div>
+                                        <div class="col-6"><label class="form-label">DDI *</label><input type="text" name="ddi" class="form-control text-uppercase" required></div>
                                     </div>
                                 </div>
-                                <div class="modal-footer"><button type="submit" class="btn btn-success">Salvar</button></div>
+                                <div class="modal-footer"><button type="submit" class="btn btn-success">Salvar País</button></div>
                             </form>
                         </div>
                     </div>

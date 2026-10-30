@@ -6,202 +6,56 @@
     <title>Cidades | ERP Front-End</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <link href="../css/style.css" rel="stylesheet" />
     <link href="../css/dashboard.css" rel="stylesheet" />
 </head>
 <body>
     <div class="app-shell">
-        <aside id="sidebar" class="sidebar">
+        <aside class="sidebar">
             <div class="brand">
                 <i class="fa-solid fa-layer-group"></i><span>Cidade-Estado-Pais</span>
-                </div>
-                    <nav>
-                    <!-- Dashboard e Cadastros Base -->
-                    <a class="nav-link" href="../dashboard.html"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></a>
+            </div>
+            <nav>
+                <!-- Dashboard e Cadastros Base -->
+                <a class="nav-link" href="index.html"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></a>
 
-                    <hr class="text-white opacity-50 my-2">
+                <hr class="text-white opacity-50 my-2">
 
-                    <!-- Geografia -->
-                    <small class="text-uppercase text-white-50 px-3 small fw-bold">Geografia</small>
-                    <a class="nav-link" href="paises.html"><i class="fa-solid fa-globe"></i><span>Países</span></a>
-                    <a class="nav-link" href="estados.html"><i class="fa-solid fa-map"></i><span>Estados</span></a>
-                    <a class="nav-link active" href="cidades.html"><i class="fa-solid fa-city"></i><span>Cidades</span></a>
+                <!-- Geografia -->
+                <small class="text-uppercase text-white-50 px-3 small fw-bold">Geografia</small>
+                <a class="nav-link" href="paises.html"><i class="fa-solid fa-globe"></i><span>Países</span></a>
+                <a class="nav-link" href="estados.html"><i class="fa-solid fa-map"></i><span>Estados</span></a>
+                <a class="nav-link active" href="cidades.html"><i class="fa-solid fa-city"></i><span>Cidades</span></a>
 
-                    <hr class="text-white opacity-50 my-2">
+                <hr class="text-white opacity-50 my-2">
 
-                    <!-- Operacional -->
-                    <small class="text-uppercase text-white-50 px-3 small fw-bold">Operacional</small>
-                    <a class="nav-link" href="clientes.html"><i class="fa-solid fa-users"></i><span>Clientes</span></a>
-                    <a class="nav-link" href="fornecedores.html"><i class="fa-solid fa-truck-field"></i><span>Fornecedores</span></a>
-                    <a class="nav-link" href="transportadores.html"><i class="fa-solid fa-truck-fast"></i><span>Transportadores</span></a>
-                    <a class="nav-link" href="produtos.html"><i class="fa-solid fa-box"></i><span>Produtos</span></a>
+                <!-- Operacional -->
+                <small class="text-uppercase text-white-50 px-3 small fw-bold">Operacional</small>
+                <a class="nav-link" href="clientes.html"><i class="fa-solid fa-users"></i><span>Clientes</span></a>
+                <a class="nav-link" href="fornecedores.html"><i class="fa-solid fa-truck-field"></i><span>Fornecedores</span></a>
+                <a class="nav-link" href="transportadores.html"><i class="fa-solid fa-truck-fast"></i><span>Transportadores</span></a>
+                <a class="nav-link" href="produtos.html"><i class="fa-solid fa-box"></i><span>Produtos</span></a>
+                <a class="nav-link" href="marcas.html"><i class="fa-solid fa-tag"></i><span>Marcas</span></a>
+                <a class="nav-link" href="categorias.html"><i class="fa-solid fa-tag"></i><span>Categorias</span></a>
 
-                    <hr class="text-white opacity-50 my-2">
+                <hr class="text-white opacity-50 my-2">
 
-                    <!-- Veículos -->
-                    <small class="text-uppercase text-white-50 px-3 small fw-bold">Veículos</small>
-                    <a class="nav-link" href="marcas.html"><i class="fa-solid fa-tag"></i><span>Marcas</span></a>
-                    <a class="nav-link" href="modelos.html"><i class="fa-solid fa-tags"></i><span>Modelos</span></a>
-                    <a class="nav-link" href="veiculos.html"><i class="fa-solid fa-car"></i><span>Veículos</span></a>
+                <!-- Veículos -->
+                <small class="text-uppercase text-white-50 px-3 small fw-bold">Veículos</small>
+                <a class="nav-link" href="modelos.html"><i class="fa-solid fa-tags"></i><span>Modelos</span></a>
+                <a class="nav-link" href="veiculos.html"><i class="fa-solid fa-car"></i><span>Veículos</span></a>
 
-                    <hr class="text-white opacity-50 my-2">
+                <hr class="text-white opacity-50 my-2">
 
-                    <!-- Administrativo -->
-                    <small class="text-uppercase text-white-50 px-3 small fw-bold">Administrativo</small>
-                    <a class="nav-link" href="condicoes_pagamento.html"><i class="fa-solid fa-credit-card"></i><span>Condições Pgto.</span></a>
-                    <a class="nav-link" href="funcionarios.html"><i class="fa-solid fa-id-badge"></i><span>Funcionários</span></a>            </nav>
-                </nav>
-            </aside>
+                <!-- Administrativo -->
+                <small class="text-uppercase text-white-50 px-3 small fw-bold">Administrativo</small>
+                <a class="nav-link" href="funcionarios.html"><i class="fa-solid fa-id-badge"></i><span>Funcionários</span></a>            
+                <a class="nav-link" href="relatorio_compras.html"><i class="fa-solid fa-file-invoice-dollar"></i><span>Compras e Contas</span></a>
+            </nav>
+        </aside>
         
-        <div class="main-wrapper" style="width: 100%;">
-            <header class="topbar">
-                <button id="toggleSidebar" class="btn btn-light btn-sm"><i class="fa-solid fa-bars"></i></button>
-                <div><h1>CIDADES</h1></div>
-            </header>
-            <main class="content">
-                <div class="card erp-card">
-                    <div class="card-header d-flex justify-content-between">
-                        <span>LISTAGEM DE CIDADES</span>
-                        <button id="btnNovo" class="btn btn-primary"><i class="fa-solid fa-plus"></i> NOVO</button>
-                    </div>
-                    <div class="card-body">
-                        <table id="mainTable" class="table table-striped w-100">
-                            <thead>
-                                <tr>
-                                    <th>CIDADE</th>
-                                    <th>DDD</th>
-                                    <th>ESTADO</th>
-                                    <th>PAÍS</th>
-                                    <th>AÇÕES</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- MODAL DE CADASTRO DE CIDADE -->
-                <div class="modal fade" id="crudModal" tabindex="-1">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <form id="crudForm">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">CADASTRAR / EDITAR CIDADE</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <input type="hidden" id="recordId" name="id" />
-                                    <div class="row g-3">
-                                        <div class="col-md-8">
-                                            <label class="form-label">NOME DA CIDADE *</label>
-                                            <input type="text" name="cidade" class="form-control" style="text-transform: uppercase;" required>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label">DDD</label>
-                                            <input type="text" name="ddd" class="form-control" style="text-transform: uppercase;" maxlength="3">
-                                        </div>
-                                        <div class="col-md-10">
-                                            <label class="form-label">ESTADO *</label>
-                                            <!-- CORREÇÃO: name ajustado para id_estado -->
-                                            <select id="idEstado" name="id_estado" class="form-select" required></select>
-                                        </div>
-                                        <div class="col-md-2 d-flex align-items-end">
-                                            <button type="button" class="btn btn-secondary w-100" id="btnNovoEstado" title="CADASTRAR NOVO ESTADO"><i class="fa-solid fa-plus"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">CANCELAR</button>
-                                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> SALVAR CIDADE</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- MODAL DE CADASTRO DE ESTADO (CASCATA 1) -->
-                <div class="modal fade" id="estadoModal" tabindex="-1">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <form id="estadoForm">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">CADASTRAR NOVO ESTADO</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row g-3">
-                                        <div class="col-md-9">
-                                            <label class="form-label">NOME DO ESTADO *</label>
-                                            <input type="text" name="estado" class="form-control" style="text-transform: uppercase;" required>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">SIGLA (UF) *</label>
-                                            <!-- CORREÇÃO: Limite de 2 caracteres -->
-                                            <input type="text" name="uf" class="form-control" style="text-transform: uppercase;" maxlength="2" required>
-                                        </div>
-                                        <div class="col-md-10">
-                                            <label class="form-label">PAÍS *</label>
-                                            <select id="idPais" name="id_pais" class="form-select" required></select>
-                                        </div>
-                                        <div class="col-md-2 d-flex align-items-end">
-                                            <button type="button" class="btn btn-secondary w-100" id="btnNovoPais" title="CADASTRAR NOVO PAÍS"><i class="fa-solid fa-plus"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">CANCELAR</button>
-                                    <button type="submit" class="btn btn-success"><i class="fa-solid fa-save"></i> SALVAR ESTADO</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- MODAL DE CADASTRO DE PAÍS (CASCATA 2) -->
-                <div class="modal fade" id="paisModal" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <form id="paisForm">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">CADASTRAR NOVO PAÍS</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row g-3">
-                                        <div class="col-md-12">
-                                            <label class="form-label">NOME DO PAÍS *</label>
-                                            <input type="text" name="pais" class="form-control" style="text-transform: uppercase;" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">SIGLA *</label>
-                                            <!-- CORREÇÃO: Limite de caracteres -->
-                                            <input type="text" name="sigla" class="form-control" style="text-transform: uppercase;" maxlength="3" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">DDI *</label>
-                                            <input type="text" name="ddi" class="form-control" style="text-transform: uppercase;" maxlength="5" placeholder="EX: +351" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">MOEDA *</label>
-                                            <!-- CORREÇÃO: Limite estrito de 3 caracteres para evitar o erro 1406 -->
-                                            <input type="text" name="moeda" class="form-control" style="text-transform: uppercase;" maxlength="3" placeholder="EX: BRL" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">CANCELAR</button>
-                                    <button type="submit" class="btn btn-dark"><i class="fa-solid fa-save"></i> SALVAR PAÍS</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-            </main>
-        </div>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/cidades.js"></script>
-</body>
-</html>
+        <div class="main-wrapper flex-grow-1 w-100">
+            <header class="topbar d-flex align-items-center justify-content-between p-3 border-bottom bg-white">
+                <div class="d-flex align-items-center gap-3">
+                    <button id="

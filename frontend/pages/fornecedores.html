@@ -12,11 +12,13 @@
 </head>
 <body>
     <div class="app-shell">
-        <aside id="sidebar" class="sidebar">
-            <div class="brand"><i class="fa-solid fa-truck-field"></i><span>ERP Menu</span></div>
-                <nav>
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-layer-group"></i><span>Cidade-Estado-Pais</span>
+            </div>
+            <nav>
                 <!-- Dashboard e Cadastros Base -->
-                <a class="nav-link" href="../dashboard.html"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></a>
+                <a class="nav-link" href="index.html"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></a>
 
                 <hr class="text-white opacity-50 my-2">
 
@@ -34,12 +36,13 @@
                 <a class="nav-link active" href="fornecedores.html"><i class="fa-solid fa-truck-field"></i><span>Fornecedores</span></a>
                 <a class="nav-link" href="transportadores.html"><i class="fa-solid fa-truck-fast"></i><span>Transportadores</span></a>
                 <a class="nav-link" href="produtos.html"><i class="fa-solid fa-box"></i><span>Produtos</span></a>
+                <a class="nav-link" href="marcas.html"><i class="fa-solid fa-tag"></i><span>Marcas</span></a>
+                <a class="nav-link" href="categorias.html"><i class="fa-solid fa-tag"></i><span>Categorias</span></a>
 
                 <hr class="text-white opacity-50 my-2">
 
                 <!-- Veículos -->
                 <small class="text-uppercase text-white-50 px-3 small fw-bold">Veículos</small>
-                <a class="nav-link" href="marcas.html"><i class="fa-solid fa-tag"></i><span>Marcas</span></a>
                 <a class="nav-link" href="modelos.html"><i class="fa-solid fa-tags"></i><span>Modelos</span></a>
                 <a class="nav-link" href="veiculos.html"><i class="fa-solid fa-car"></i><span>Veículos</span></a>
 
@@ -47,10 +50,10 @@
 
                 <!-- Administrativo -->
                 <small class="text-uppercase text-white-50 px-3 small fw-bold">Administrativo</small>
-                <a class="nav-link" href="condicoes_pagamento.html"><i class="fa-solid fa-credit-card"></i><span>Condições Pgto.</span></a>
-                <a class="nav-link" href="funcionarios.html"><i class="fa-solid fa-id-badge"></i><span>Funcionários</span></a>            </nav>
-                </nav>
-        </aside>
+                <a class="nav-link" href="funcionarios.html"><i class="fa-solid fa-id-badge"></i><span>Funcionários</span></a>            
+                <a class="nav-link" href="relatorio_compras.html"><i class="fa-solid fa-file-invoice-dollar"></i><span>Compras e Contas</span></a>
+            </nav>
+        </aside>       
         <div class="main-wrapper">
             <header class="topbar"><button id="toggleSidebar" class="btn btn-light btn-sm"><i class="fa-solid fa-bars"></i></button><div><h1>Fornecedores</h1></div></header>
             <main class="content">
@@ -72,17 +75,17 @@
                                 <div class="modal-body">
                                     <input type="hidden" id="recordId" name="id" />
                                     <div class="row g-3">
-                                        <div class="col-md-6"><label class="form-label">Razão Social / Nome *</label><input type="text" name="fornecedor" class="form-control text-uppercase" required></div>
+                                        <div class="col-6"><label class="form-label">Razão Social / Nome *</label><input type="text" name="fornecedor" class="form-control text-uppercase" required></div>
                                         <div class="col-md-3"><label class="form-label">Nome Fantasia</label><input type="text" name="nome_fantasia" class="form-control text-uppercase"></div>
                                         <div class="col-md-3"><label class="form-label">CPF/CNPJ *</label><input type="text" name="cpf_cnpj" class="form-control text-uppercase" required></div>
                                         
                                         <div class="col-md-3"><label class="form-label">Categoria</label><input type="text" name="categoria" class="form-control text-uppercase"></div>
                                         <div class="col-md-3"><label class="form-label">RG/IE</label><input type="text" name="ie" class="form-control text-uppercase"></div>
-                                        <div class="col-md-6"><label class="form-label">Email</label><input type="email" name="email" class="form-control text-uppercase"></div>
+                                        <div class="col-6"><label class="form-label">Email</label><input type="email" name="email" class="form-control text-uppercase"></div>
                                         
                                         <div class="col-md-3"><label class="form-label">Telefone</label><input type="text" name="telefone" class="form-control text-uppercase"></div>
                                         <div class="col-md-3"><label class="form-label">Celular</label><input type="text" name="celular" class="form-control text-uppercase"></div>
-                                        <div class="col-md-6"><label class="form-label">Observação</label><input type="text" name="observacao" class="form-control text-uppercase"></div>
+                                        <div class="col-6"><label class="form-label">Observação</label><input type="text" name="observacao" class="form-control text-uppercase"></div>
                                         
                                         <div class="col-md-2"><label class="form-label">CEP</label><input type="text" name="cep" class="form-control text-uppercase"></div>
                                         <div class="col-md-5"><label class="form-label">Logradouro</label><input type="text" name="logradouro" class="form-control text-uppercase"></div>
@@ -148,10 +151,10 @@
                                 <div class="modal-header"><h5 class="modal-title">Novo País</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                                 <div class="modal-body">
                                     <div class="row g-3">
-                                        <div class="col-md-6"><label class="form-label">País *</label><input type="text" name="pais" class="form-control text-uppercase" required></div>
-                                        <div class="col-md-6"><label class="form-label">Moeda *</label><input type="text" name="moeda" class="form-control text-uppercase" required></div>
-                                        <div class="col-md-6"><label class="form-label">Sigla *</label><input type="text" name="sigla" class="form-control text-uppercase" required></div>
-                                        <div class="col-md-6"><label class="form-label">DDI *</label><input type="text" name="ddi" class="form-control text-uppercase" required></div>
+                                        <div class="col-6"><label class="form-label">País *</label><input type="text" name="pais" class="form-control text-uppercase" required></div>
+                                        <div class="col-6"><label class="form-label">Moeda *</label><input type="text" name="moeda" class="form-control text-uppercase" required></div>
+                                        <div class="col-6"><label class="form-label">Sigla *</label><input type="text" name="sigla" class="form-control text-uppercase" required></div>
+                                        <div class="col-6"><label class="form-label">DDI *</label><input type="text" name="ddi" class="form-control text-uppercase" required></div>
                                     </div>
                                 </div>
                                 <div class="modal-footer"><button type="submit" class="btn btn-success">Salvar</button></div>

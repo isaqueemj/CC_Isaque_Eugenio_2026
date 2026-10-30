@@ -234,3 +234,85 @@ CREATE TABLE IF NOT EXISTS transportadores (
 
     CONSTRAINT fk_transportador_cidade FOREIGN KEY (id_cidade) REFERENCES cidades(id_cidade)
 );
+
+ADICIONAR A TABELA COMPRA QUE UNIFICA TUDO
+
+CONTAS A PAGAR DEVE ESTAR VINCULADO A COMPRA QUE E DIFERENTE DE CONDICAO DE PAGAMENTO E FORMA DE PAGAMENTO
+
+-- =========================
+-- COMPRAS (CABEÇALHO)
+-- =========================
+CREATE TABLE IF NOT EXISTS compras (
+    id_compra INT AUTO_INCREMENT PRIMARY KEY,
+    id_fornecedor INT NOT NULL,
+    id_condicao_pagamento INT NOT NULL,
+    id_forma_pagamento INT NOT NULL,
+    id_transportador INT NULL,
+    
+    numero_nota_fiscal VARCHAR(50),
+    data_emissao DATE NOT NULL,
+    data_chegada DATE,
+    
+    valor_frete DECIMAL(10,2) DEFAULT 0,
+    valor_desconto DECIMAL(10,2) DEFAULT 0,
+    valor_total DECIMAL(10,2) DEFAULT 0,
+    observacao TEXT,
+    
+    status VARCHAR(20) DEFAULT 'PENDENTE', -- PENDENTE, FINALIZADA, CANCELADA
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_compra_fornecedor FOREIGN KEY (id_fornecedor) REFERENCES fornecedores(id_fornecedor),
+    CONSTRAINT fk_compra_condicao FOREIGN KEY (id_condicao_pagamento) REFERENCES condicoes_pagamento(id_condicao_pagamento),
+    CONSTRAINT fk_compra_forma FOREIGN KEY (id_forma_pagamento) REFERENCES formas_pagamento(id_forma_pagamento),
+    CONSTRAINT fk_compra_transportador FOREIGN KEY (id_transportador) REFERENCES transportadores(id_transportador)
+);
+
+-- =========================
+-- ITENS DA COMPRA
+-- =========================
+CREATE TABLE IF NOT EXISTS itens_compra (
+    id_item_compra INT AUTO_INCREMENT PRIMARY KEY,
+    id_compra INT NOT NULL,
+    id_produto INT NOT NULL,
+    
+    quantidade DECIMAL(10,3) NOT NULL,
+    valor_unitario DECIMAL(10,2) NOT NULL,
+    valor_total DECIMAL(10,2) NOT NULL,
+    
+    CONSTRAINT fk_item_compra FOREIGN KEY (id_compra) REFERENCES compras(id_compra) ON DELETE CASCADE,
+    CONSTRAINT fk_item_produto FOREIGN KEY (id_produto) REFERENCES produtos(id_produto)
+);
+
+-- =========================
+-- CONTAS A PAGAR
+-- =========================
+CREATE TABLE IF NOT EXISTS contas_pagar (
+    id_conta_pagar INT AUTO_INCREMENT PRIMARY KEY,
+    id_compra INT NOT NULL,
+    id_fornecedor INT NOT NULL, -- Redundância intencional para facilitar relatórios rápidos
+    id_forma_pagamento INT NOT NULL, 
+    
+    numero_parcela INT DEFAULT 1,
+    descricao VARCHAR(100),
+    
+    data_vencimento DATE NOT NULL,
+    data_pagamento DATE NULL,
+    
+    valor_parcela DECIMAL(10,2) NOT NULL,
+    valor_pago DECIMAL(10,2) DEFAULT 0,
+    valor_multa_juros DECIMAL(10,2) DEFAULT 0,
+    valor_desconto DECIMAL(10,2) DEFAULT 0,
+    
+    status VARCHAR(20) DEFAULT 'ABERTA', -- ABERTA, PAGA, CANCELADA
+    observacao TEXT,
+    
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_conta_compra FOREIGN KEY (id_compra) REFERENCES compras(id_compra) ON DELETE CASCADE,
+    CONSTRAINT fk_conta_fornecedor FOREIGN KEY (id_fornecedor) REFERENCES fornecedores(id_fornecedor),
+    CONSTRAINT fk_conta_forma_pgto FOREIGN KEY (id_forma_pagamento) REFERENCES formas_pagamento(id_forma_pagamento)
+);

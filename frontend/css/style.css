@@ -244,3 +244,33 @@ body {
 .sidebar::-webkit-scrollbar-track {
     background: transparent;
 }
+
+/* Força as colunas de formulário a dividirem a tela em 50/50 em qualquer tela */
+.modal-body .row > .col-md-6 {
+    flex: 0 0 auto !important;
+    width: 50% !important;
+}
+
+/* Força as colunas de 3 itens (como preço e saldo) a dividirem a tela em 33% */
+.modal-body .row > .col-md-4 {
+    flex: 0 0 auto !important;
+    width: 33.33333333% !important;
+}
+
+/* Força o dropdown do TomSelect a ficar sempre acima dos Modais */
+.ts-dropdown {
+    z-index: 1060 !important; 
+}
+
+/* Opcional: Ajusta a largura se ele estiver a ficar muito estreito */
+.ts-control {
+    width: 100% !important;
+}
+
+.modal {
+    z-index: 1060 !important;
+}
+
+.modal-backdrop {
+    z-index: 1050 !important;
+}

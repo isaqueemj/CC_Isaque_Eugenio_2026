@@ -11,45 +11,50 @@
 </head>
 <body>
     <div class="app-shell">
-        <aside id="sidebar" class="sidebar">
-            <div class="brand"><i class="fa-solid fa-users"></i><span>ERP Menu</span></div>
-                <nav>
+    <div class="app-shell">
+
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-layer-group"></i><span>Cidade-Estado-Pais</span>
+            </div>
+            <nav>
                 <!-- Dashboard e Cadastros Base -->
-                    <a class="nav-link" href="../dashboard.html"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></a>
+                <a class="nav-link" href="index.html"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></a>
 
-                    <hr class="text-white opacity-50 my-2">
+                <hr class="text-white opacity-50 my-2">
 
-                    <!-- Geografia -->
-                    <small class="text-uppercase text-white-50 px-3 small fw-bold">Geografia</small>
-                    <a class="nav-link" href="paises.html"><i class="fa-solid fa-globe"></i><span>Países</span></a>
-                    <a class="nav-link" href="estados.html"><i class="fa-solid fa-map"></i><span>Estados</span></a>
-                    <a class="nav-link" href="cidades.html"><i class="fa-solid fa-city"></i><span>Cidades</span></a>
+                <!-- Geografia -->
+                <small class="text-uppercase text-white-50 px-3 small fw-bold">Geografia</small>
+                <a class="nav-link" href="paises.html"><i class="fa-solid fa-globe"></i><span>Países</span></a>
+                <a class="nav-link" href="estados.html"><i class="fa-solid fa-map"></i><span>Estados</span></a>
+                <a class="nav-link" href="cidades.html"><i class="fa-solid fa-city"></i><span>Cidades</span></a>
 
-                    <hr class="text-white opacity-50 my-2">
+                <hr class="text-white opacity-50 my-2">
 
-                    <!-- Operacional -->
-                    <small class="text-uppercase text-white-50 px-3 small fw-bold">Operacional</small>
-                    <a class="nav-link active" href="clientes.html"><i class="fa-solid fa-users"></i><span>Clientes</span></a>
-                    <a class="nav-link" href="fornecedores.html"><i class="fa-solid fa-truck-field"></i><span>Fornecedores</span></a>
-                    <a class="nav-link" href="transportadores.html"><i class="fa-solid fa-truck-fast"></i><span>Transportadores</span></a>
-                    <a class="nav-link" href="produtos.html"><i class="fa-solid fa-box"></i><span>Produtos</span></a>
+                <!-- Operacional -->
+                <small class="text-uppercase text-white-50 px-3 small fw-bold">Operacional</small>
+                <a class="nav-link active" href="clientes.html"><i class="fa-solid fa-users"></i><span>Clientes</span></a>
+                <a class="nav-link" href="fornecedores.html"><i class="fa-solid fa-truck-field"></i><span>Fornecedores</span></a>
+                <a class="nav-link" href="transportadores.html"><i class="fa-solid fa-truck-fast"></i><span>Transportadores</span></a>
+                <a class="nav-link" href="produtos.html"><i class="fa-solid fa-box"></i><span>Produtos</span></a>
+                <a class="nav-link" href="marcas.html"><i class="fa-solid fa-tag"></i><span>Marcas</span></a>
+                <a class="nav-link" href="categorias.html"><i class="fa-solid fa-tag"></i><span>Categorias</span></a>
 
-                    <hr class="text-white opacity-50 my-2">
+                <hr class="text-white opacity-50 my-2">
 
-                    <!-- Veículos -->
-                    <small class="text-uppercase text-white-50 px-3 small fw-bold">Veículos</small>
-                    <a class="nav-link" href="marcas.html"><i class="fa-solid fa-tag"></i><span>Marcas</span></a>
-                    <a class="nav-link" href="modelos.html"><i class="fa-solid fa-tags"></i><span>Modelos</span></a>
-                    <a class="nav-link" href="veiculos.html"><i class="fa-solid fa-car"></i><span>Veículos</span></a>
+                <!-- Veículos -->
+                <small class="text-uppercase text-white-50 px-3 small fw-bold">Veículos</small>
+                <a class="nav-link" href="modelos.html"><i class="fa-solid fa-tags"></i><span>Modelos</span></a>
+                <a class="nav-link" href="veiculos.html"><i class="fa-solid fa-car"></i><span>Veículos</span></a>
 
-                    <hr class="text-white opacity-50 my-2">
+                <hr class="text-white opacity-50 my-2">
 
-                    <!-- Administrativo -->
-                    <small class="text-uppercase text-white-50 px-3 small fw-bold">Administrativo</small>
-                    <a class="nav-link" href="condicoes_pagamento.html"><i class="fa-solid fa-credit-card"></i><span>Condições Pgto.</span></a>
-                    <a class="nav-link" href="funcionarios.html"><i class="fa-solid fa-id-badge"></i><span>Funcionários</span></a>            </nav>
-                </nav>
-        </aside>
+                <!-- Administrativo -->
+                <small class="text-uppercase text-white-50 px-3 small fw-bold">Administrativo</small>
+                <a class="nav-link" href="funcionarios.html"><i class="fa-solid fa-id-badge"></i><span>Funcionários</span></a>            
+                <a class="nav-link" href="relatorio_compras.html"><i class="fa-solid fa-file-invoice-dollar"></i><span>Compras e Contas</span></a>
+            </nav>
+        </aside>        
         <div class="main-wrapper">
             <header class="topbar"><button id="toggleSidebar" class="btn btn-light btn-sm"><i class="fa-solid fa-bars"></i></button><div><h1>Clientes</h1></div></header>
             <main class="content">
@@ -57,7 +62,7 @@
                     <div class="card-header d-flex justify-content-between"><span>Listagem</span><button id="btnNovo" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Novo</button></div>
                     <div class="card-body">
                         <table id="mainTable" class="table table-striped w-100">
-                            <thead><tr><th>Nome</th><th>CPF/CNPJ</th><th>Cidade</th><th>Telefone</th><th>Ações</th></tr></thead>
+                            <thead><tr><th>Cliente</th><th>CPF/CNPJ</th><th>Cidade</th><th>Telefone</th><th>Ações</th></tr></thead>
                             <tbody></tbody>
                         </table>
                     </div>
@@ -71,7 +76,7 @@
                                 <div class="modal-body">
                                     <input type="hidden" id="recordId" name="id" />
                                     <div class="row g-3">
-                                        <div class="col-md-6"><label class="form-label">Nome *</label><input type="text" name="cliente" class="form-control text-uppercase" required></div>
+                                        <div class="col-md-6"><label class="form-label">Cliente *</label><input type="text" name="cliente" class="form-control text-uppercase" required></div>
                                         <div class="col-md-3"><label class="form-label">CPF/CNPJ *</label><input type="text" name="cpf_cnpj" class="form-control text-uppercase" required></div>
                                         <div class="col-md-3"><label class="form-label">RG/IE</label><input type="text" name="rg" class="form-control text-uppercase"></div>
                                         
@@ -102,7 +107,7 @@
                                 <div class="modal-header"><h5 class="modal-title">Nova Cidade</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                                 <div class="modal-body">
                                     <div class="row g-3">
-                                        <div class="col-md-8"><label class="form-label">Nome da Cidade *</label><input type="text" name="cidade" class="form-control text-uppercase" required></div>
+                                        <div class="col-md-8"><label class="form-label">Cidade *</label><input type="text" name="cidade" class="form-control text-uppercase" required></div>
                                         <div class="col-md-4"><label class="form-label">DDD</label><input type="text" name="ddd" class="form-control text-uppercase"></div>
                                         <div class="col-md-10"><label class="form-label">Estado *</label><select id="idEstado" name="estado_id" class="form-select" required></select></div>
                                         <div class="col-md-2 d-flex align-items-end"><button type="button" class="btn btn-secondary w-100" id="btnNovoEstado"><i class="fa-solid fa-plus"></i></button></div>

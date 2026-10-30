@@ -15,12 +15,13 @@
 </head>
 <body>
     <div class="app-shell">
-        <aside id="sidebar" class="sidebar">
-            <div class="brand"><i class="fa-solid fa-id-badge"></i><span>ERP Menu</span></div>
-                <!-- Lista de navegação padronizada para todas as páginas -->
-                <nav>
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-layer-group"></i><span>Cidade-Estado-Pais</span>
+            </div>
+            <nav>
                 <!-- Dashboard e Cadastros Base -->
-                <a class="nav-link" href="../dashboard.html"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></a>
+                <a class="nav-link" href="index.html"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></a>
 
                 <hr class="text-white opacity-50 my-2">
 
@@ -38,12 +39,13 @@
                 <a class="nav-link" href="fornecedores.html"><i class="fa-solid fa-truck-field"></i><span>Fornecedores</span></a>
                 <a class="nav-link" href="transportadores.html"><i class="fa-solid fa-truck-fast"></i><span>Transportadores</span></a>
                 <a class="nav-link" href="produtos.html"><i class="fa-solid fa-box"></i><span>Produtos</span></a>
+                <a class="nav-link active" href="marcas.html"><i class="fa-solid fa-tag"></i><span>Marcas</span></a>
+                <a class="nav-link" href="categorias.html"><i class="fa-solid fa-tag"></i><span>Categorias</span></a>
 
                 <hr class="text-white opacity-50 my-2">
 
                 <!-- Veículos -->
                 <small class="text-uppercase text-white-50 px-3 small fw-bold">Veículos</small>
-                <a class="nav-link active" href="marcas.html"><i class="fa-solid fa-tag"></i><span>Marcas</span></a>
                 <a class="nav-link" href="modelos.html"><i class="fa-solid fa-tags"></i><span>Modelos</span></a>
                 <a class="nav-link" href="veiculos.html"><i class="fa-solid fa-car"></i><span>Veículos</span></a>
 
@@ -51,10 +53,10 @@
 
                 <!-- Administrativo -->
                 <small class="text-uppercase text-white-50 px-3 small fw-bold">Administrativo</small>
-                <a class="nav-link" href="condicoes_pagamento.html"><i class="fa-solid fa-credit-card"></i><span>Condições Pgto.</span></a>
-                <a class="nav-link" href="funcionarios.html"><i class="fa-solid fa-id-badge"></i><span>Funcionários</span></a>            </nav>
-                </nav>
-        </aside>        
+                <a class="nav-link" href="funcionarios.html"><i class="fa-solid fa-id-badge"></i><span>Funcionários</span></a>            
+                <a class="nav-link" href="relatorio_compras.html"><i class="fa-solid fa-file-invoice-dollar"></i><span>Compras e Contas</span></a>
+            </nav>
+        </aside>              
         <div class="main-wrapper" style="width: 100%;">
             <header class="topbar">
                 <button id="toggleSidebar" class="btn btn-light btn-sm"><i class="fa-solid fa-bars"></i></button>
@@ -92,8 +94,8 @@
                                     <input type="hidden" id="recordId" name="id" />
                                     <div class="row g-3">
                                         <div class="col-md-12">
-                                            <label class="form-label">NOME DA MARCA *</label>
-                                            <input type="text" name="nome" class="form-control" style="text-transform: uppercase;" required>
+                                            <label class="form-label">MARCA *</label>
+                                            <input type="text" name="marca" class="form-control" style="text-transform: uppercase;" required>
                                         </div>
                                     </div>
                                 </div>
