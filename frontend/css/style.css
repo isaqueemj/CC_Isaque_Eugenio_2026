@@ -297,3 +297,179 @@ body {
     border-color: #dc3545 !important;
     background-color: #f8d7da !important;
 }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            background-color: #f1f5f9;
+            overflow-x: hidden;
+        }
+        .app-shell {
+            display: flex !important;
+            flex-direction: row !important;
+            width: 100% !important;
+            min-height: 100vh !important;
+        }
+        .sidebar {
+            width: 250px !important;
+            min-width: 250px !important;
+            flex-shrink: 0 !important;
+            background-color: #111827;
+            color: #fff;
+            min-height: 100vh;
+            transition: all 0.25s ease;
+        }
+        .sidebar.collapsed {
+            margin-left: -250px !important;
+        }
+        .main-wrapper {
+            flex: 1 1 auto !important;
+            width: calc(100% - 250px) !important;
+            min-width: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            background-color: #f1f5f9;
+        }
+        .topbar {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 16px 24px !important;
+            background-color: #ffffff !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            width: 100% !important;
+        }
+        .content {
+            padding: 24px !important;
+            width: 100% !important;
+            flex: 1 !important;
+        }
+
+        /* Estilização Fiel à Imagem da Modal de Condições de Pagamento */
+        #modalCondicaoPagamento .modal-content {
+            border-radius: 14px;
+            border: none;
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+        }
+        #modalCondicaoPagamento .modal-header {
+            border-bottom: 1px solid #f1f5f9;
+            padding: 18px 24px;
+        }
+        #modalCondicaoPagamento .modal-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .badge-inserir {
+            background-color: #d1fae5;
+            color: #059669;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.4px;
+        }
+        .cp-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .cp-input {
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 7px 12px;
+            font-size: 0.9rem;
+            color: #1e293b;
+        }
+        .cp-input:focus, .cp-select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+            outline: none;
+        }
+        .cp-input-disabled {
+            background-color: #f1f5f9 !important;
+            color: #94a3b8 !important;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        .section-parcelas-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
+        .table-parcelas th {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            border-bottom: 1px solid #e2e8f0 !important;
+            padding: 8px 12px !important;
+            background: transparent !important;
+        }
+        .table-parcelas td {
+            padding: 10px 12px !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            vertical-align: middle;
+        }
+        .btn-novo-verde {
+            background-color: #10b981;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.82rem;
+            border: none;
+            border-radius: 6px;
+            padding: 7px 14px;
+            white-space: nowrap;
+        }
+        .btn-novo-verde:hover {
+            background-color: #059669;
+            color: #ffffff;
+        }
+        .total-percentual-ok {
+            color: #059669;
+            font-weight: 700;
+            font-size: 0.82rem;
+        }
+        .total-percentual-erro {
+            color: #dc2626;
+            font-weight: 700;
+            font-size: 0.82rem;
+        }
+        .btn-cancelar-modal {
+            background-color: #64748b;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.88rem;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 20px;
+        }
+        .btn-cancelar-modal:hover {
+            background-color: #475569;
+            color: #ffffff;
+        }
+        .btn-salvar-modal {
+            background-color: #2563eb;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.88rem;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 20px;
+        }
+        .btn-salvar-modal:hover {
+            background-color: #1d4ed8;
+            color: #ffffff;
+        }

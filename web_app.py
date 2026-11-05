@@ -754,5 +754,86 @@ def index():
 def assets(nome_arquivo): 
     return send_from_directory(frontend_path, nome_arquivo)
 
+# ==========================================================
+# ROTAS: FORMAS DE PAGAMENTO
+# ==========================================================
+@app.route("/api/formas_pagamento", methods=["GET"])
+def listar_formas_pagamento():
+    conexao = None
+    cursor = None
+    try:
+        conexao = conectar_banco()
+        cursor = conexao.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM formas_pagamento ORDER BY forma_pagamento ASC")
+        registros = cursor.fetchall()
+        return jsonify(registros), 200
+    except Exception as e:
+        return jsonify({"status": "erro", "mensagem": str(e)}), 500
+    finally:
+        if cursor: cursor.close()
+        if conexao and conexao.is_connected(): conexao.close()
+
+@app.route("/api/formas_pagamento", methods=["POST"])
+def criar_forma_pagamento():
+    dados = request.get_json() or {}
+    forma_pagamento = (dados.get("forma_pagamento") or "").strip().upper()
+    ativo = bool(dados.get("ativo", True))
+    
+    if not forma_pagamento:
+        return jsonify({"status": "erro", "mensagem": "A descrição da forma de pagamento é obrigatória."}), 400
+        
+    conexao = None
+    cursor = None
+    try:
+        conexao = conectar_banco()
+        cursor = conexao.cursor()
+        sql = "INSERT INTO formas_pagamento (forma_pagamento, ativo) VALUES (%s, %s)"
+        cursor.execute(sql, (forma_pagamento, ativo))
+        conexao.commit()
+        return jsonify({"status": "sucesso", "mensagem": "Forma de pagamento cadastrada com sucesso!"}), 201
+    except Exception as e:
+        if conexao: conexao.rollback()
+        return jsonify({"status": "erro", "mensagem": str(e)}), 500
+    finally:
+        if cursor: cursor.close()
+        if conexao and conexao.is_connected(): conexao.close()
+
+@app.route("/api/formas_pagamento/<int:id>", methods=["PUT", "DELETE"])
+def gerenciar_forma_pagamento(id):
+    conexao = None
+    cursor = None
+    try:
+        conexao = conectar_banco()
+        cursor = conexao.cursor()
+        
+        if request.method == "PUT":
+            dados = request.get_json() or {}
+            forma_pagamento = (dados.get("forma_pagamento") or "").strip().upper()
+            ativo = bool(dados.get("ativo", True))
+            
+            if not forma_pagamento:
+                return jsonify({"status": "erro", "mensagem": "A descrição é obrigatória."}), 400
+                
+            cursor.execute("UPDATE formas_pagamento SET forma_pagamento=%s, ativo=%s WHERE id_forma_pagamento=%s", 
+                           (forma_pagamento, ativo, id))
+            conexao.commit()
+            return jsonify({"status": "sucesso", "mensagem": "Atualizada com sucesso!"}), 200
+            
+        elif request.method == "DELETE":
+            # Proteção simples, verifica se está em uso antes de excluir (opcional mas recomendado)
+            try:
+                cursor.execute("DELETE FROM formas_pagamento WHERE id_forma_pagamento=%s", (id,))
+                conexao.commit()
+                return jsonify({"status": "sucesso", "mensagem": "Excluída com sucesso!"}), 200
+            except Exception as ex:
+                return jsonify({"status": "erro", "mensagem": "Não é possível excluir. A forma de pagamento está sendo usada no sistema."}), 409
+            
+    except Exception as e:
+        if conexao: conexao.rollback()
+        return jsonify({"status": "erro", "mensagem": str(e)}), 500
+    finally:
+        if cursor: cursor.close()
+        if conexao and conexao.is_connected(): conexao.close()
+
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)
