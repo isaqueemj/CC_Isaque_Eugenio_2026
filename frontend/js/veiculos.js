@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/marcas');
             const marcas = await res.json();
             idMarcaSelect.innerHTML = '<option value="">Selecione uma marca...</option>' + 
-                marcas.map(m => `<option value="${m.id}" ${m.id == idSelecionado ? 'selected' : ''}>${m.nome}</option>`).join('');
+                marcas.map(m => `<option value="${m.id}" ${m.id == idSelecionado ? 'selected' : ''}>${m.marca}</option>`).join('');
         } catch (e) { console.error("Erro ao carregar marcas"); }
     }
 

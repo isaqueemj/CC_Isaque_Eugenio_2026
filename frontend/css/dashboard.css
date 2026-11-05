@@ -1,286 +1,267 @@
-.dashboard-home {
-    background:
-        radial-gradient(circle at top left, rgba(37, 99, 235, 0.10), transparent 32%),
-        radial-gradient(circle at top right, rgba(14, 165, 233, 0.12), transparent 28%),
-        #f4f7fb;
+:root {
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 76px;
+    --sidebar-bg: #0f172a;
+    --primary-color: #2563eb;
+    --bg-light-erp: #f1f5f9;
 }
 
-.welcome-section {
-    min-height: 310px;
-    border-radius: 30px;
-    padding: 36px;
-    background:
-        linear-gradient(135deg, rgba(15, 23, 42, 0.97), rgba(30, 64, 175, 0.94)),
-        linear-gradient(135deg, #0f172a, #1d4ed8);
+body {
+    margin: 0;
+    background-color: var(--bg-light-erp);
+    overflow-x: hidden;
+}
+
+.app-shell {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--bg-light-erp);
+}
+
+/* Barra Lateral (Compatível com Dashboard e páginas internas) */
+.sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    background: var(--sidebar-bg);
+    color: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.25s ease, min-width 0.25s ease;
+    flex-shrink: 0;
+    z-index: 100;
+}
+
+.sidebar.collapsed {
+    width: var(--sidebar-collapsed-width);
+    min-width: var(--sidebar-collapsed-width);
+}
+
+.sidebar.collapsed .brand span,
+.sidebar.collapsed small,
+.sidebar.collapsed .nav-link span,
+.sidebar.collapsed .btn-logout-sidebar span {
+    display: none;
+}
+
+.sidebar .brand {
+    padding: 1.25rem 1.2rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: #38bdf8;
+}
+
+.sidebar nav {
+    flex: 1;
+    padding: 0.75rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.85rem;
+    color: #cbd5e1;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    text-decoration: none;
+    margin-bottom: 0.2rem;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background: var(--primary-color);
     color: #ffffff;
+}
+
+.sidebar-footer {
+    padding: 0.85rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.btn-logout-sidebar {
+    width: 100%;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.12);
+    color: #fca5a5;
+    padding: 0.55rem 0.75rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-logout-sidebar:hover {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+/* Área Principal (Garante 100% do espaço restante ao lado da Sidebar) */
+.main-wrapper {
+    flex: 1;
+    width: calc(100% - var(--sidebar-width));
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-light-erp);
+}
+
+.topbar {
+    background: #ffffff;
+    padding: 0.9rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 34px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
-    margin-bottom: 28px;
-}
-
-.welcome-section::before {
-    content: "";
-    position: absolute;
-    width: 290px;
-    height: 290px;
-    right: -90px;
-    top: -110px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.10);
-}
-
-.welcome-section::after {
-    content: "";
-    position: absolute;
-    width: 170px;
-    height: 170px;
-    right: 210px;
-    bottom: -95px;
-    border-radius: 50%;
-    background: rgba(96, 165, 250, 0.20);
-}
-
-.welcome-content {
-    max-width: 720px;
-    position: relative;
-    z-index: 2;
-}
-
-.welcome-tag {
-    width: fit-content;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 14px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.13);
-    color: #dbeafe;
-    font-size: 0.86rem;
-    font-weight: 800;
-    margin-bottom: 16px;
-}
-
-.welcome-content h2 {
-    font-size: clamp(2rem, 4vw, 3.15rem);
-    font-weight: 950;
-    margin: 0 0 12px;
-    letter-spacing: -0.05em;
-}
-
-.welcome-content p {
-    color: #dbeafe;
-    margin: 0;
-    line-height: 1.75;
-    font-size: 1rem;
-}
-
-.welcome-actions {
-    margin-top: 24px;
-    display: flex;
-    gap: 12px;
+    gap: 1rem;
     flex-wrap: wrap;
 }
 
-.welcome-actions .btn {
-    border-radius: 15px;
-    font-weight: 850;
-    padding: 11px 17px;
+.topbar h1,
+.topbar-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    color: #0f172a;
 }
 
-.welcome-illustration {
-    width: 330px;
-    height: 230px;
-    position: relative;
-    z-index: 2;
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-greeting {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: #1e293b;
+    background: #f8fafc;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.content {
+    padding: 1.5rem;
+    flex: 1;
+    width: 100%;
+}
+
+/* Cards de KPI do Dashboard */
+.kpi-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    border: 1px solid #e2e8f0;
+    height: 100%;
+}
+
+.kpi-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    flex-shrink: 0;
+}
+
+.kpi-info {
+    min-width: 0;
+}
+
+.kpi-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
     display: block;
 }
 
-.floating-card {
-    position: absolute;
-    min-width: 160px;
-    padding: 16px 18px;
-    border-radius: 22px;
-    background: rgba(255, 255, 255, 0.96);
+.kpi-value {
+    font-size: 1.35rem;
+    font-weight: 800;
+    margin: 0.15rem 0;
     color: #0f172a;
-    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.22);
+    white-space: nowrap;
+}
+
+.kpi-sub {
+    font-size: 0.75rem;
+    display: block;
+}
+
+/* Cards de Acesso Rápido */
+.quick-card {
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-weight: 900;
-}
-
-.floating-card i {
-    width: 38px;
-    height: 38px;
+    gap: 0.9rem;
+    padding: 1rem;
     border-radius: 14px;
-    display: grid;
-    place-items: center;
-    background: #eff6ff;
-    color: #2563eb;
-    font-size: 1.15rem;
-}
-
-.card-one {
-    top: 0;
-    left: 30px;
-}
-
-.card-two {
-    top: 82px;
-    right: 0;
-}
-
-.card-three {
-    bottom: 0;
-    left: 0;
-}
-
-.quick-access-section {
-    margin-bottom: 28px;
-}
-
-.section-title {
-    margin-bottom: 18px;
-}
-
-.section-title h3 {
-    font-size: 1.35rem;
-    font-weight: 950;
-    color: #0f172a;
-    margin: 0;
-}
-
-.section-title p {
-    margin: 5px 0 0;
-    color: #64748b;
-    font-weight: 600;
-}
-
-.quick-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(180px, 1fr));
-    gap: 18px;
-}
-
-.quick-card {
+    border: 1px solid #e2e8f0;
     text-decoration: none;
-    color: inherit;
-    min-height: 175px;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 24px;
-    padding: 22px;
-    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.065);
-    position: relative;
-    overflow: hidden;
-    transition: 0.22s ease;
+    color: #0f172a;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+    height: 100%;
 }
 
-.quick-card::before {
-    content: "";
-    position: absolute;
-    right: -34px;
-    top: -34px;
-    width: 92px;
-    height: 92px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(14, 165, 233, 0.04));
+.quick-card i {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.quick-card h6 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 0.92rem;
+}
+
+.quick-card small {
+    color: #64748b;
+    font-size: 0.78rem;
 }
 
 .quick-card:hover {
-    transform: translateY(-5px);
-    color: inherit;
-    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.10);
-    border-color: #bfdbfe;
-}
-
-.quick-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 17px;
-    background: #eff6ff;
-    color: #2563eb;
-    display: grid;
-    place-items: center;
-    font-size: 1.25rem;
-    margin-bottom: 18px;
-    position: relative;
-    z-index: 1;
-}
-
-.quick-card h4 {
-    font-size: 1rem;
-    font-weight: 950;
-    color: #0f172a;
-    margin: 0 0 8px;
-    position: relative;
-    z-index: 1;
-}
-
-.quick-card p {
-    color: #64748b;
-    margin: 0;
-    line-height: 1.55;
-    font-size: 0.92rem;
-    font-weight: 600;
-    position: relative;
-    z-index: 1;
-}
-
-.info-section {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-    margin-bottom: 10px;
-}
-
-.info-card {
     background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 24px;
-    padding: 22px;
-    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.065);
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-}
-
-/* Adicione ou atualize a classe .sidebar no seu CSS */
-.sidebar {
-    height: 100vh; /* Faz a barra lateral ocupar 100% da altura da tela */
-    overflow-y: auto; /* Adiciona a rolagem vertical quando o conteúdo vazar */
-    overflow-x: hidden; /* Evita que crie rolagem horizontal */
-}
-
-/* Opcional: Deixar a barra de rolagem mais bonita e fina */
-.sidebar::-webkit-scrollbar {
-    width: 6px;
-}
-
-.sidebar::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-}
-
-.sidebar::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-body { text-transform: uppercase; }
-
-/* Força as colunas de formulário a dividirem a tela em 50/50 em qualquer tela */
-.modal-body .row > .col-md-6 {
-    flex: 0 0 auto !important;
-    width: 50% !important;
-}
-
-/* Força as colunas de 3 itens (como preço e saldo) a dividirem a tela em 33% */
-.modal-body .row > .col-md-4 {
-    flex: 0 0 auto !important;
-    width: 33.33333333% !important;
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
 }

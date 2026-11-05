@@ -274,3 +274,26 @@ body {
 .modal-backdrop {
     z-index: 1050 !important;
 }
+
+/* Ajuste nos inputs para deixá-los uniformes no layout de formulários modais */
+.form-control.rounded-3, .form-select.rounded-3 {
+    border: 1px solid #ced4da;
+    box-shadow: none;
+    transition: border-color 0.2s;
+}
+
+.form-control.rounded-3:focus, .form-select.rounded-3:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+/* Indicador dinâmico de percentual na modal */
+#indicador-total {
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+#indicador-total.erro-total {
+    color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    background-color: #f8d7da !important;
+}

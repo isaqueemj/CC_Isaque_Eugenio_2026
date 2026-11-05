@@ -1,10 +1,13 @@
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, request, jsonify, session, redirect
 from flask_cors import CORS
 from datetime import date, datetime
 from decimal import Decimal
 import os
+import re
 from db import conectar_banco
 import time
+from functools import wraps
+from werkzeug.security import generate_password_hash, check_password_hash
 
 diretorio_atual = os.path.dirname(os.path.abspath(__file__))
 frontend_path = os.path.join(diretorio_atual, "frontend")
@@ -417,9 +420,332 @@ def lancar_compra():
     finally:
         if cursor: cursor.close()
         if conexao and conexao.is_connected(): conexao.close()
+
+@app.route("/api/condicoes_pagamento", methods=["POST"])
+def salvar_condicao_pagamento():
+    dados = request.get_json() or {}
+    
+    # Validação dos campos obrigatórios
+    if not dados.get("condicao") or not dados.get("num_parcelas"):
+        return jsonify({"status": "erro", "mensagem": "Os campos Condição e Nº de Parcelas são obrigatórios."}), 400
+        
+    conexao = None
+    cursor = None
+    try:
+        conexao = conectar_banco()
+        cursor = conexao.cursor()
+        
+        # 1. Inserir Cabeçalho da Condição
+        sql_cabecalho = """
+            INSERT INTO condicoes_pagamento 
+            (condicao, num_parcelas, taxa_desconto, taxa_multa, taxa_juros, ativo) 
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        valores_cabecalho = (
+            dados["condicao"].upper(),
+            int(dados["num_parcelas"]),
+            float(dados.get("taxa_desconto", 0)),
+            float(dados.get("taxa_multa", 0)),
+            float(dados.get("taxa_juros", 0)),
+            bool(dados.get("ativo", True))
+        )
+        cursor.execute(sql_cabecalho, valores_cabecalho)
+        id_condicao_gerada = cursor.lastrowid
+        
+        # 2. Inserir as N Parcelas vinculadas
+        parcelas = dados.get("parcelas", [])
+        if parcelas:
+            sql_parcela = """
+                INSERT INTO condicoes_pagamento_parcelas 
+                (id_condicao_pagamento, numero_parcela, percentual, dias, id_forma_pagamento) 
+                VALUES (%s, %s, %s, %s, %s)
+            """
+            for p in parcelas:
+                forma_pgto = p.get("id_forma_pagamento")
+                valores_parcela = (
+                    id_condicao_gerada,
+                    int(p["numero_parcela"]),
+                    float(p["percentual"]),
+                    int(p["dias"]),
+                    int(forma_pgto) if forma_pgto else None
+                )
+                cursor.execute(sql_parcela, valores_parcela)
+        
+        # Consolida a transação
+        conexao.commit()
+        return jsonify({"status": "sucesso", "mensagem": "Condição de pagamento cadastrada com sucesso!"}), 201
+        
+    except Exception as e:
+        if conexao: conexao.rollback() # Evita inserção pela metade
+        print(f"Erro ao salvar Condição de Pagamento: {e}")
+        return jsonify({"status": "erro", "mensagem": str(e)}), 500
+    finally:
+        if cursor: cursor.close()
+        if conexao and conexao.is_connected(): conexao.close()
 # ============================================================
 # ROTAS DO FRONTEND
 # ============================================================
+
+app.secret_key = os.environ.get("SECRET_KEY", "chave_secreta_erp_financeiro_2026_segura")
+
+# ==========================================================
+# MIDDLEWARE E DECORATOR DE PROTEÇÃO DE ROTAS
+# ==========================================================
+def login_obrigatorio(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "usuario_id" not in session:
+            # Se for chamada de API, retorna 401 JSON
+            if request.path.startswith("/api/"):
+                return jsonify({"status": "erro", "mensagem": "Sessão expirada ou usuário não autenticado."}), 401
+            # Se for acesso a página HTML, redireciona para o login
+            return redirect("/login.html")
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.before_request
+def verificar_autenticacao_global():
+    """Protege automaticamente o Dashboard, páginas internas e rotas da API."""
+    rotas_publicas = [
+        "/login", "/register", "/logout",
+        "/login.html", "/css/login.css", "/js/login.js",
+        "/css/style.css"
+    ]
+    caminho = request.path
+
+    # Permite arquivos públicos de login e rotas de autenticação
+    if caminho in rotas_publicas or caminho.startswith("/static/"):
+        return None
+
+    # Bloqueia acesso não autenticado a qualquer página HTML ou rota da API
+    if "usuario_id" not in session:
+        if caminho.startswith("/api/"):
+            return jsonify({"status": "erro", "mensagem": "Acesso não autorizado. Faça login."}), 401
+        return redirect("/login.html")
+
+
+# ==========================================================
+# VALIDAÇÃO MATEMÁTICA DE CPF NO BACK-END
+# ==========================================================
+def validar_cpf_backend(cpf: str) -> bool:
+    numeros = re.sub(r"\D", "", cpf or "")
+    if len(numeros) != 11 or numeros == numeros[0] * 11:
+        return False
+    for i in range(9, 11):
+        soma = sum(int(numeros[num]) * ((i + 1) - num) for num in range(0, i))
+        digito = ((soma * 10) % 11) % 10
+        if digito != int(numeros[i]):
+            return False
+    return True
+
+
+# ==========================================================
+# ROTAS DE AUTENTICAÇÃO (/register, /login, /logout)
+# ==========================================================
+@app.route("/register", methods=["POST"])
+def registrar_usuario():
+    dados = request.get_json() or {}
+    nome = (dados.get("nome") or "").strip()
+    email = (dados.get("email") or "").strip().lower()
+    cpf = (dados.get("cpf") or "").strip()
+    senha = dados.get("senha") or ""
+
+    if not nome or not email or not cpf or not senha:
+        return jsonify({"status": "erro", "mensagem": "Preencha todos os campos obrigatórios."}), 400
+
+    if not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]{2,}$", email):
+        return jsonify({"status": "erro", "mensagem": "Formato de e-mail inválido."}), 400
+
+    if not validar_cpf_backend(cpf):
+        return jsonify({"status": "erro", "mensagem": "CPF inválido."}), 400
+
+    if len(senha) < 6:
+        return jsonify({"status": "erro", "mensagem": "A senha deve ter pelo menos 6 caracteres."}), 400
+
+    # Formata o CPF no padrão 000.000.000-00
+    apenas_digitos = re.sub(r"\D", "", cpf)
+    cpf_formatado = f"{apenas_digitos[:3]}.{apenas_digitos[3:6]}.{apenas_digitos[6:9]}-{apenas_digitos[9:]}"
+
+    conexao = None
+    cursor = None
+    try:
+        conexao = conectar_banco()
+        cursor = conexao.cursor(dictionary=True)
+
+        # Verifica duplicidade de E-mail ou CPF
+        cursor.execute(
+            "SELECT id_usuario, email, cpf FROM usuarios WHERE email = %s OR cpf = %s",
+            (email, cpf_formatado)
+        )
+        existente = cursor.fetchone()
+        if existente:
+            if existente["email"] == email:
+                return jsonify({"status": "erro", "mensagem": "Este e-mail já está cadastrado."}), 409
+            return jsonify({"status": "erro", "mensagem": "Este CPF já está cadastrado."}), 409
+
+        # Gera o Hash seguro da senha
+        senha_hash = generate_password_hash(senha)
+
+        sql = """
+            INSERT INTO usuarios (nome, email, cpf, senha_hash, ativo)
+            VALUES (%s, %s, %s, %s, TRUE)
+        """
+        cursor.execute(sql, (nome.upper(), email, cpf_formatado, senha_hash))
+        conexao.commit()
+
+        return jsonify({"status": "sucesso", "mensagem": "Conta criada com sucesso! Faça seu login."}), 201
+
+    except Exception as e:
+        if conexao:
+            conexao.rollback()
+        print(f"Erro no cadastro de usuário: {e}")
+        return jsonify({"status": "erro", "mensagem": "Erro interno ao cadastrar usuário."}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conexao and conexao.is_connected():
+            conexao.close()
+
+
+@app.route("/login", methods=["POST"])
+def login_usuario():
+    dados = request.get_json() or {}
+    identificador = (dados.get("email") or "").strip().lower()
+    senha = dados.get("senha") or ""
+
+    if not identificador or not senha:
+        return jsonify({"status": "erro", "mensagem": "Informe seu e-mail e senha."}), 400
+
+    conexao = None
+    cursor = None
+    try:
+        conexao = conectar_banco()
+        cursor = conexao.cursor(dictionary=True)
+
+        cursor.execute(
+            "SELECT id_usuario, nome, email, cpf, senha_hash, ativo FROM usuarios WHERE email = %s LIMIT 1",
+            (identificador,)
+        )
+        usuario = cursor.fetchone()
+
+        if not usuario or not check_password_hash(usuario["senha_hash"], senha):
+            return jsonify({"status": "erro", "mensagem": "E-mail ou senha incorretos."}), 401
+
+        if not usuario.get("ativo", True):
+            return jsonify({"status": "erro", "mensagem": "Usuário inativo. Contate o administrador."}), 403
+
+        # Cria sessão segura do usuário
+        session.clear()
+        session["usuario_id"] = usuario["id_usuario"]
+        session["usuario_nome"] = usuario["nome"]
+        session["usuario_email"] = usuario["email"]
+
+        return jsonify({
+            "status": "sucesso",
+            "mensagem": "Login realizado com sucesso!",
+            "usuario": {
+                "id": usuario["id_usuario"],
+                "nome": usuario["nome"],
+                "email": usuario["email"]
+            },
+            "redirect": "/dashboard.html"
+        }), 200
+
+    except Exception as e:
+        print(f"Erro no login: {e}")
+        return jsonify({"status": "erro", "mensagem": "Erro interno ao processar login."}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conexao and conexao.is_connected():
+            conexao.close()
+
+
+@app.route("/logout", methods=["POST", "GET"])
+def logout_usuario():
+    session.clear()
+    if request.method == "GET":
+        return redirect("/login.html")
+    return jsonify({"status": "sucesso", "redirect": "/login.html"}), 200
+
+
+@app.route("/api/usuario_logado", methods=["GET"])
+@login_obrigatorio
+def obter_usuario_logado():
+    return jsonify({
+        "id": session.get("usuario_id"),
+        "nome": session.get("usuario_nome"),
+        "email": session.get("usuario_email")
+    }), 200
+
+
+# ==========================================================
+# ROTA DE RESUMO DO DASHBOARD (KPIs FINANCEIROS E CADASTRAIS)
+# ==========================================================
+@app.route("/api/dashboard/resumo", methods=["GET"])
+@login_obrigatorio
+def resumo_dashboard():
+    conexao = None
+    cursor = None
+    resumo = {
+        "total_clientes": 0,
+        "total_fornecedores": 0,
+        "contas_pagar_abertas": 0.0,
+        "contas_receber_abertas": 0.0
+    }
+    try:
+        conexao = conectar_banco()
+        cursor = conexao.cursor(dictionary=True)
+
+        # 1. Total de Clientes Ativos
+        try:
+            cursor.execute("SELECT COUNT(*) AS total FROM clientes WHERE ativo = TRUE")
+            row = cursor.fetchone()
+            resumo["total_clientes"] = int(row["total"] or 0)
+        except Exception:
+            pass
+
+        # 2. Total de Fornecedores Ativos
+        try:
+            cursor.execute("SELECT COUNT(*) AS total FROM fornecedores WHERE ativo = TRUE")
+            row = cursor.fetchone()
+            resumo["total_fornecedores"] = int(row["total"] or 0)
+        except Exception:
+            pass
+
+        # 3. Soma de Contas a Pagar em Aberto
+        try:
+            cursor.execute("""
+                SELECT COALESCE(SUM(valor_parcela - COALESCE(valor_pago, 0)), 0) AS total
+                FROM contas_pagar
+                WHERE status = 'ABERTA' AND ativo = TRUE
+            """)
+            row = cursor.fetchone()
+            resumo["contas_pagar_abertas"] = float(row["total"] or 0.0)
+        except Exception:
+            pass
+
+        # 4. Soma de Contas a Receber em Aberto
+        try:
+            cursor.execute("""
+                SELECT COALESCE(SUM(valor_parcela - COALESCE(valor_recebido, 0)), 0) AS total
+                FROM contas_receber
+                WHERE status = 'ABERTA' AND ativo = TRUE
+            """)
+            row = cursor.fetchone()
+            resumo["contas_receber_abertas"] = float(row["total"] or 0.0)
+        except Exception:
+            pass
+
+        return jsonify(resumo), 200
+    except Exception as e:
+        print(f"Erro ao carregar resumo do dashboard: {e}")
+        return jsonify(resumo), 200
+    finally:
+        if cursor:
+            cursor.close()
+        if conexao and conexao.is_connected():
+            conexao.close()
 @app.route("/")
 def index(): 
     return send_from_directory(frontend_path, "index.html")
